@@ -1,10 +1,12 @@
 package com.sgdevcamp.membershipservice.model;
 
+import io.hypersistence.utils.hibernate.type.json.JsonType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -14,6 +16,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@TypeDef(name = "json", typeClass = JsonType.class)
 public class User extends BaseTimeEntity{
     @Id
     @GeneratedValue
