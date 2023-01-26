@@ -3,7 +3,6 @@ package com.sgdevcamp.membershipservice.conifg;
 import com.sgdevcamp.membershipservice.model.User;
 import com.sgdevcamp.membershipservice.service.CookieUtil;
 import com.sgdevcamp.membershipservice.service.JwtUtil;
-import com.sgdevcamp.membershipservice.service.MyUserDetailsService;
 import com.sgdevcamp.membershipservice.service.RedisUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
