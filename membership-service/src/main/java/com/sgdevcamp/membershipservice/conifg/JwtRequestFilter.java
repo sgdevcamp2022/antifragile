@@ -7,10 +7,9 @@ import com.sgdevcamp.membershipservice.service.RedisUtil;
 import io.jsonwebtoken.ExpiredJwtException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.ObjectUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -56,9 +55,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 String isLogout = redisUtil.getData(jwt);
 
                 if(ObjectUtils.isEmpty(isLogout) && jwtUtil.validateToken(jwt, userDetails)){
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    Authentication authentication = jwtUtil.getAuthentication(jwt);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
                 }
             }
         }catch(ExpiredJwtException e){
@@ -75,10 +73,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 refreshUname = redisUtil.getData(refreshJwt);
 
                 if(refreshUname.equals(jwtUtil.getUsername(refreshJwt))){
-                    UserDetails userDetails = userDetailsService.loadUserByUsername(refreshUname);
-                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(httpServletRequest));
-                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+                    Authentication authentication = jwtUtil.getAuthentication(refreshJwt);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
 
                     User user = new User().builder()
                             .username(refreshUname).build();
