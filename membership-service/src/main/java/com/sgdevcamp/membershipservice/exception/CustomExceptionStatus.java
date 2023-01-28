@@ -65,7 +65,7 @@ public enum CustomExceptionStatus {
     ALREADY_CERTIFICATION_ACCOUNT(false,2214,"이미 인증된 유저입니다."),
     FAILED_TO_CERTIFICATION(false,2215,"유효한 토큰 값이 아닙니다."),
     FAILED_TO_RECEPTION(false,2216,"유효한 수신 번호가 아닙니다."),
-    DUPLICATED_ID(false, 2217, "중복된 아이디입니다."),
+    DUPLICATED_USERNAME(false, 2217, "중복된 아이디입니다."),
 
     /**
      * 2300 : Database, Server 오류
