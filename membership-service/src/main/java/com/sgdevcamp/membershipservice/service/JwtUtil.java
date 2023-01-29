@@ -56,22 +56,27 @@ public class JwtUtil {
         return extractAllClaims(token).get("username", String.class);
     }
 
+    public String getEmail(String token){
+        return extractAllClaims(token).get("email", String.class);
+    }
+
     public Boolean isTokenExpired(String token){
         final Date expiration = extractAllClaims(token).getExpiration();
         return expiration.before(new Date());
     }
 
     public String generateToken(User user){
-        return doGenerateToken(user.getUsername(), TOKEN_VALIDATION_SECOND, user.getRole());
+        return doGenerateToken(user.getUsername(), user.getEmail(), TOKEN_VALIDATION_SECOND, user.getRole());
     }
 
     public String generateRefreshToken(User user){
-        return doGenerateToken(user.getUsername(), REFRESH_TOKEN_VALIDATION_SECOND, user.getRole());
+        return doGenerateToken(user.getUsername(), user.getEmail(), REFRESH_TOKEN_VALIDATION_SECOND, user.getRole());
     }
 
-    public String doGenerateToken(String username, long expireTime, UserRole role){
+    public String doGenerateToken(String username, String email, long expireTime, UserRole role){
         Claims claims = Jwts.claims();
         claims.put("username", username);
+        claims.put("email", email);
         claims.put(ROLE, role);
 
         String jwt = Jwts.builder()
@@ -92,7 +97,7 @@ public class JwtUtil {
 
     public Authentication getAuthentication(String token){
         UserDetails userDetails = userDetailsService.loadUserByUsername(this.getUsername(token));
+        if(userDetails == null) userDetailsService.loadUserByUsername(this.getEmail(token));
         return new UsernamePasswordAuthenticationToken(userDetails,"",userDetails.getAuthorities());
     }
-
 }

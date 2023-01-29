@@ -39,7 +39,8 @@ public class UserService {
 
     @Transactional
     public UserDto signUp(UserDto signupForm){
-        if (userRepository.findByEmailOrUsername(signupForm.getEmail(), signupForm.getUsername()).isPresent()) throw new CustomException(CustomExceptionStatus.DUPLICATED_EMAIL);
+        if (userRepository.findByUsername(signupForm.getUsername()).isPresent()) throw new CustomException(CustomExceptionStatus.DUPLICATED_USERNAME);
+        else if(userRepository.findByEmail(signupForm.getEmail()).isPresent()) throw new CustomException(CustomExceptionStatus.DUPLICATED_EMAIL);
 
         String password = signupForm.getPassword();
         String salt = saltUtil.genSalt();
@@ -64,7 +65,7 @@ public class UserService {
 
     @Transactional
     public LoginResponse loginUser(LoginRequest request) {
-        User account = userRepository.findByEmailOrUsername(request.getEmail(), request.getUsername())
+        User account = userRepository.findByUsernameOrEmail(request.getUsername(), request.getEmail())
                 .orElseThrow(() -> new CustomException(CustomExceptionStatus.FAILED_TO_LOGIN));
 
         String salt = account.getSalt().getSalt();
@@ -75,7 +76,8 @@ public class UserService {
         }
 
         User user = User.builder()
-                .username(request.getEmail())
+                .username(request.getUsername())
+                .email(request.getEmail())
                 .role(account.getRole())
                 .build();
 
@@ -129,7 +131,7 @@ public class UserService {
 
     @Transactional
     public void updateRole(String email, String username, UserRole userRole) {
-        User user = userRepository.findByEmailOrUsername(email, username)
+        User user = userRepository.findByUsernameOrEmail(username, email)
                 .orElseThrow(() -> new CustomException(CustomExceptionStatus.ACCOUNT_NOT_VALID));
         user.updateRole(userRole);
     }
