@@ -8,7 +8,7 @@ import java.util.Set;
 
 @Data
 public class PostRequest {
-    private String profile;
+    private String username;
 
     private List<Image> imageUrl;
 
