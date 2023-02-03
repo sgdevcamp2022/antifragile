@@ -1,14 +1,14 @@
 package com.sgdevcamp.membershipservice.controller;
 
 import com.sgdevcamp.membershipservice.conifg.CustomUserDetails;
-import com.sgdevcamp.membershipservice.dto.request.LoginRequest;
-import com.sgdevcamp.membershipservice.dto.request.ProfileRequest;
-import com.sgdevcamp.membershipservice.dto.request.UserDto;
+import com.sgdevcamp.membershipservice.dto.request.*;
 import com.sgdevcamp.membershipservice.dto.response.*;
 import com.sgdevcamp.membershipservice.exception.CustomException;
 import com.sgdevcamp.membershipservice.exception.CustomExceptionStatus;
 import com.sgdevcamp.membershipservice.exception.ValidationExceptionProvider;
+import com.sgdevcamp.membershipservice.model.User;
 import com.sgdevcamp.membershipservice.model.UserRole;
+import com.sgdevcamp.membershipservice.service.CookieUtil;
 import com.sgdevcamp.membershipservice.service.ResponseService;
 import com.sgdevcamp.membershipservice.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,12 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.security.Principal;
+import java.util.Map;
+
+import static com.sgdevcamp.membershipservice.exception.CustomExceptionStatus.*;
 
 @Slf4j
 @RestController
@@ -27,6 +32,7 @@ import javax.validation.Valid;
 public class UserController {
     private final ResponseService responseService;
     private final UserService userService;
+    private final CookieUtil cookieUtil;
 
     @PostMapping("/signup")
     public Response<UserDto> signUp(@RequestBody @Valid UserDto userDto, Errors errors){
@@ -38,6 +44,16 @@ public class UserController {
     public Response<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest, Errors errors){
         if(errors.hasErrors()) ValidationExceptionProvider.throwValidError(errors);
         return responseService.getDataResponse(userService.loginUser(loginRequest));
+    }
+
+    @PostMapping("/logout")
+    public CommonResponse logout(HttpServletRequest request, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        String accessToken = cookieUtil.getCookie(request, "accessToken").getValue();
+        String refreshToken = cookieUtil.getCookie(request, "refreshToken").getValue();
+
+        userService.logout(customUserDetails.getUsername(), accessToken, refreshToken);
+
+        return responseService.getSuccessResponse();
     }
 
     @PostMapping("/send-mail")
@@ -72,18 +88,99 @@ public class UserController {
         return responseService.getDataResponse(userService.getNameAndPhoto(id));
     }
 
+    @GetMapping("/auth/profile")
+    public CommonResponse getMyProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails){
+        String username = customUserDetails.getUsername();
+        if(username == null) throw new CustomException(NOT_AUTHENTICATED_ACCOUNT);
+
+        ProfileResponse profileResponse = userService.getMyProfile(username);
+
+        return responseService.getDataResponse(profileResponse);
+    }
+
     @PatchMapping("/auth/profile")
     public CommonResponse modifyProfile(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                         @RequestBody @Valid ProfileRequest profileRequest, Errors errors) {
         if (errors.hasErrors()) ValidationExceptionProvider.throwValidError(errors);
-        userService.modifyProfile(customUserDetails.getAccount(), profileRequest);
-        return responseService.getSuccessResponse();
+
+        ProfileResponse profileResponse = userService.modifyProfile(customUserDetails.getAccount(), profileRequest);
+
+        return responseService.getDataResponse(profileResponse);
     }
 
     @PostMapping("/auth/profile")
     public CommonResponse uploadProfileImage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
                                              @RequestParam("image") MultipartFile multipartFile) throws Exception {
         userService.uploadProfile(customUserDetails.getAccount(), multipartFile);
+        return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/password")
+    public CommonResponse requestChangePassword(@RequestBody RequestChangePassword1 requestChangePassword1){
+        CommonResponse response;
+        String username = "";
+
+        try{
+            username = requestChangePassword1.getUsername();
+            User user = userService.findByUsername(username);
+
+            if(!user.getEmail().equals(requestChangePassword1.getEmail())) throw new NoSuchFieldException("");
+
+            userService.sendMailToChangePassword(user);
+
+            log.info("성공적으로 " + username + "의 비밀번호 변경요청을 수행");
+
+            response = responseService.getSuccessResponse();
+        }catch(NoSuchFieldException e){
+            log.info("가입된 이메일이 아닙니다.");
+
+            response = responseService.getExceptionResponse(POST_USERS_NOT_EQUAL_EMAIL);
+        }
+        return response;
+    }
+
+    @PostMapping("/password/{key}")
+    public CommonResponse isPasswordUUIdValidate(@PathVariable String key){
+        CommonResponse response;
+
+        try{
+            if(userService.isPasswordUuidValidate(key))
+                response = responseService.getSuccessResponse();
+            else
+                response = responseService.getExceptionResponse(INVALID_KEY);
+        }catch (Exception e){
+            response = responseService.getExceptionResponse(INVALID_KEY);
+        }
+
+        return response;
+    }
+
+    @PutMapping("/password")
+    public CommonResponse changePassword(@RequestBody RequestChangePassword2 requestChangePassword2){
+        String username = "";
+        username = requestChangePassword2.getUsername();
+
+        User user = userService.findByUsername(username);
+        userService.changePassword(user, requestChangePassword2.getPassword());
+
+        log.info("성공적으로" + username + "의 비밀번호를 변경했습니다.");
+
+        return responseService.getSuccessResponse();
+    }
+
+    @DeleteMapping("/auth/remove")
+    public CommonResponse removeMember(Principal principal, @RequestBody Map<String, String> map){
+        try {
+            String username = principal.getName();
+            if(userService.isPasswordEqual(username, map.get("password"))) {
+                userService.removeMember(username);
+                log.info(username + "님이 탈퇴했습니다.");
+            }else{
+                return responseService.getExceptionResponse(POST_USERS_WRONG_PASSWORD);
+            }
+        }catch(Exception e){
+            log.info("탈퇴에 실패했습니다.");
+        }
         return responseService.getSuccessResponse();
     }
 }
