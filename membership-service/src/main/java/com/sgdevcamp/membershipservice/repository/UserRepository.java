@@ -15,4 +15,6 @@ public interface UserRepository extends CrudRepository<User, Long> {
     Optional<User> findByEmailAndRoleLike(String email, UserRole role);
 
     Optional<User> findByEmail(String email);
+
+    void deleteByUsername(String username);
 }
