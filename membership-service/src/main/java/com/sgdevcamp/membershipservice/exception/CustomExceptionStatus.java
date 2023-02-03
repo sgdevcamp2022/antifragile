@@ -22,7 +22,7 @@ public enum CustomExceptionStatus {
     INVALID_USER_JWT(false,2103,"권한이 없는 유저의 접근입니다."),
     NOT_AUTHENTICATED_ACCOUNT(false, 2104, "로그인이 필요합니다."),
     NOT_USER_ROLE_ACCOUNT(false, 2105, "가입 후 최초 한 번의 이메일 인증이 필요합니다."),
-
+    INVALID_KEY(false, 2106, "유효하지 않는 key 값입니다."),
 
     // users
     USERS_EMPTY_USER_ID(false, 2110, "유저 아이디 값을 확인해주세요."),
@@ -34,13 +34,15 @@ public enum CustomExceptionStatus {
     POST_USERS_EMPTY_EMAIL(false, 2120, "이메일을 입력해주세요."),
     POST_USERS_INVALID_EMAIL(false, 2121, "이메일 형식을 확인해주세요."),
     POST_USERS_EXISTS_EMAIL(false,2122,"중복된 이메일입니다."),
-    POST_USERS_EMPTY_NAME(false, 2123, "네임을 입력해주세요."),
-    POST_USERS_INVALID_NAME(false, 2124, "네임 형식을 확인해주세요."),
-    POST_USERS_EMPTY_USERNAME(false, 2125, "아이디를 입력해주세요."),
-    POST_USERS_EXISTS_USERNAME(false,2126,"중복된 아이디입니다."),
-    POST_USERS_INVALID_USERNAME(false,2127,"아이디 형식을 확인해주세요."),
-    POST_USERS_INVALID_PASSWORD(false, 2128, "비밀번호 형식을 확인해주세요."),
-    POST_USERS_EMPTY_PASSWORD(false, 2129, "비밀번호를 입력해주세요"),
+    POST_USERS_NOT_EQUAL_EMAIL(false, 2123, "가입된 이메일이 아닙니다."),
+    POST_USERS_EMPTY_NAME(false, 2124, "네임을 입력해주세요."),
+    POST_USERS_INVALID_NAME(false, 2125, "네임 형식을 확인해주세요."),
+    POST_USERS_EMPTY_USERNAME(false, 2126, "아이디를 입력해주세요."),
+    POST_USERS_EXISTS_USERNAME(false,2127,"중복된 아이디입니다."),
+    POST_USERS_INVALID_USERNAME(false,2128,"아이디 형식을 확인해주세요."),
+    POST_USERS_INVALID_PASSWORD(false, 2129, "비밀번호 형식을 확인해주세요."),
+    POST_USERS_EMPTY_PASSWORD(false, 2130, "비밀번호를 입력해주세요"),
+    POST_USERS_WRONG_PASSWORD(false, 2131, "비밀번호를 다시 입력해주세요"),
 
     // Role
     ACCOUNT_ACCESS_DENIED(false, 2150, "권한이 없습니다."),
