@@ -10,6 +10,7 @@ import com.sgdevcamp.membershipservice.dto.response.NameAndPhotoResponse;
 import com.sgdevcamp.membershipservice.dto.response.ProfileResponse;
 import com.sgdevcamp.membershipservice.exception.CustomException;
 import com.sgdevcamp.membershipservice.exception.CustomExceptionStatus;
+import com.sgdevcamp.membershipservice.messaging.UserEventSender;
 import com.sgdevcamp.membershipservice.model.Profile;
 import com.sgdevcamp.membershipservice.model.Salt;
 import com.sgdevcamp.membershipservice.model.User;
@@ -45,6 +46,7 @@ public class UserService {
     private final FileService fileService;
     private final SaltUtil saltUtil;
     private final RedisTemplate redisTemplate;
+    private final UserEventSender userEventSender;
     private final MyUserDetailsService myUserDetailsService;
 
     public UserDto signUp(UserDto signupForm){
@@ -67,6 +69,8 @@ public class UserService {
                 .build();
 
         User save = userRepository.save(account);
+        userEventSender.sendUserCreated(save);
+
         signupForm.setId(save.getId());
 
         return signupForm;
