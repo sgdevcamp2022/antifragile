@@ -2,6 +2,7 @@ package com.sgdevcamp.followservice.controller;
 
 import com.sgdevcamp.followservice.dto.request.FollowRequest;
 import com.sgdevcamp.followservice.dto.request.UserDto;
+import com.sgdevcamp.followservice.dto.response.CommonResponse;
 import com.sgdevcamp.followservice.dto.response.Response;
 import com.sgdevcamp.followservice.model.User;
 import com.sgdevcamp.followservice.service.ResponseService;
@@ -47,6 +48,12 @@ public class UserController {
         );
 
         return responseService.getDataResponse(result);
+    }
+
+    @DeleteMapping("/users/{usernameA}/following/{usernameB}")
+    public CommonResponse cancelFollowing(@PathVariable String usernameA, @PathVariable String usernameB){
+        userService.cancelFollow(usernameA, usernameB);
+        return responseService.getSuccessResponse();
     }
 
     @GetMapping("/users/{username}/degree")

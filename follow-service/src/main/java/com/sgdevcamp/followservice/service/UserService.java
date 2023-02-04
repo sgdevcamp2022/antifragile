@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 
-import static com.sgdevcamp.followservice.exception.CustomExceptionStatus.USERNAMENOTEXISTSEXCEPTION;
+import static com.sgdevcamp.followservice.exception.CustomExceptionStatus.*;
 
 @Slf4j
 @Service
@@ -26,7 +26,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     public User addUser(User user){
-        if(userRepository.findByUsername(user.getUsername()).isPresent()) throw new CustomException(USERNAMENOTEXISTSEXCEPTION);
+        if(userRepository.findByUsername(user.getUsername()).isPresent()) throw new CustomException(USERNAME_NOT_EXIST);
 
         User save_user = userRepository.save(user);
 
@@ -48,7 +48,7 @@ public class UserService {
 
                     return saved_user;
                 })
-                .orElseThrow(() -> new CustomException(USERNAMENOTEXISTSEXCEPTION));
+                .orElseThrow(() -> new CustomException(USERNAME_NOT_EXIST));
     }
 
     @Transactional
@@ -59,7 +59,7 @@ public class UserService {
         User saved_follower = userRepository
                 .findByUserId(follower.getUserId())
                 .orElseGet(() -> {
-                    new CustomException(USERNAMENOTEXISTSEXCEPTION);
+                    new CustomException(USERNAME_NOT_EXIST);
                     return this.addUser(follower);
                 });
 
@@ -81,6 +81,12 @@ public class UserService {
                         .build());
 
         return userRepository.save(saved_follower);
+    }
+
+    public void cancelFollow(String follower, String following){
+        userRepository.deleteFollowing(follower, following);
+
+        log.info("{} cancel to follow {}", follower, following);
     }
 
     public NodeDegree findNodeDegree(String username){

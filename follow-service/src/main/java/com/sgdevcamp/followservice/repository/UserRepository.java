@@ -33,4 +33,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 
     @Query("MATCH (n:User{username : $username})-->(f:User) Return f")
     List<User> findFollowing(@Param("username") String username);
+
+    @Query("MATCH (n)-[r:IS_FOLLOWING]->(m) WHERE n.username = $username1 AND m.username = $username2 DELETE r")
+    void deleteFollowing(@Param("username1") String username1, @Param("username2") String username2);
 }
