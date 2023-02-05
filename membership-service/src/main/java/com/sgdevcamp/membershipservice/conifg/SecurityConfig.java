@@ -33,7 +33,9 @@ public class SecurityConfig {
                     .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint)
                 .and()
                     .authorizeRequests()
-                        .anyRequest().permitAll()
+                        .antMatchers("/membership-server/signup", "/membership-server/login",
+                                "/membership-service/check-email", "/membership-service/password/*").permitAll()
+                        .anyRequest().authenticated()
                 .and()
                     .logout()
                     .logoutUrl("/users/logout")
