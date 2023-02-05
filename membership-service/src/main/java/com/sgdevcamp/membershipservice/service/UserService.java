@@ -73,6 +73,8 @@ public class UserService {
 
         signupForm.setId(save.getId());
 
+        log.info("{} 회원가입이 완료되었습니다.", save.getUsername());
+
         return signupForm;
     }
 
