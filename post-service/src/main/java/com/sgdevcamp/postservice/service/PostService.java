@@ -26,6 +26,7 @@ public class PostService {
     private final PostLikeRepository postLikeRepository;
     private final CommentLikeRepository commentLikeRepository;
     private final ProfileRepository profileRepository;
+    private final PostEventSender postEventSender;
 
     public PostResponse createPost(PostRequest postRequest){
         Post post = Post.builder()
@@ -37,6 +38,7 @@ public class PostService {
                 .build();
 
         post = postRepository.save(post);
+        postEventSender.sendPostCreated(post);
 
         PostResponse postResponse = PostResponse.builder()
                 .username(post.getUsername())
@@ -70,6 +72,7 @@ public class PostService {
                     postRepository.delete(post);
                     commentRepository.deleteByPostId(post_id);
                     postLikeRepository.deleteByPostId(post_id);
+                    postEventSender.sendPostDeleted(post);
                     log.info("deleting post {}", post_id);
                     return post;
                 }).orElseThrow(() -> {
