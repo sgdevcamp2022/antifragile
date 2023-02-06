@@ -30,9 +30,6 @@ public class Post {
     @NonNull
     private String content;
 
-    @DocumentReference
-    private Profile profile;
-
     private int commentCount;
 
     private Long likeCount;
