@@ -5,6 +5,7 @@ import com.sgdevcamp.postservice.dto.request.PostRequest;
 import com.sgdevcamp.postservice.dto.response.CommentResponse;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
+import com.sgdevcamp.postservice.messaging.PostEventSender;
 import com.sgdevcamp.postservice.model.*;
 import com.sgdevcamp.postservice.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -27,12 +28,7 @@ public class PostService {
     private final ProfileRepository profileRepository;
 
     public PostResponse createPost(PostRequest postRequest){
-        Profile profile = profileRepository.findByUsername(postRequest.getUsername()).orElseThrow(() -> {
-            {throw new CustomException(NOT_FOUND_USER);}
-        });
-
         Post post = Post.builder()
-                .profile(profile)
                 .images(postRequest.getImageUrl())
                 .likeCount(0L)
                 .commentCount(0)
@@ -46,7 +42,6 @@ public class PostService {
                 .username(post.getUsername())
                 .images(post.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                 .content(post.getContent())
-                .profile(post.getProfile().getImage())
                 .commentCount(0)
                 .likeCount(0L)
                 .hashTags(post.getHashTags())
@@ -90,7 +85,6 @@ public class PostService {
                         .username(p.getUsername())
                         .images(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                         .content(p.getContent())
-                        .profile(p.getProfile().getImage())
                         .commentCount(p.getCommentCount())
                         .likeCount(p.getLikeCount())
                         .hashTags(p.getHashTags())
@@ -107,7 +101,6 @@ public class PostService {
                         .username(p.getUsername())
                         .images(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                         .content(p.getContent())
-                        .profile(p.getProfile().getImage())
                         .commentCount(p.getCommentCount())
                         .likeCount(p.getLikeCount())
                         .hashTags(p.getHashTags())
