@@ -28,6 +28,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -130,6 +131,10 @@ public class UserService {
         User member = userRepository.findByUsername(username)
                 .orElseThrow(() -> {throw new CustomException(ACCOUNT_NOT_FOUND);});
         return member;
+    }
+
+    public List<User> findByUsernameIn(List<String> usernames) {
+        return userRepository.findByUsernameIn(usernames);
     }
 
     public MailResponse sendEmail(String email) {

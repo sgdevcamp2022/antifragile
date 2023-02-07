@@ -23,7 +23,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.sgdevcamp.membershipservice.exception.CustomExceptionStatus.*;
 
@@ -90,10 +92,19 @@ public class UserController {
         return responseService.getDataResponse(userService.getNameAndPhoto(id));
     }
 
-    @PostMapping(value = "/auth/summary/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getUserSummary(@PathVariable("username") String username) {
-        log.info("retrieving user {}", username);
-        return ResponseEntity.ok(convertTo(userService.findByUsername(username)));
+    @PostMapping(value = "/auth/summary/in", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserSummaries(@RequestBody List<String> usernames) {
+        log.info("retrieving summaries for {} usernames", usernames.size());
+
+        List<UserSummary> summaries =
+                userService
+                        .findByUsernameIn(usernames)
+                        .stream()
+                        .map(user -> convertTo(user))
+                        .collect(Collectors.toList());
+
+        return ResponseEntity.ok(summaries);
+
     }
 
     @GetMapping("/auth/profile")
