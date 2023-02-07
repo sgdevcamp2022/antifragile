@@ -13,6 +13,8 @@ import com.sgdevcamp.membershipservice.service.ResponseService;
 import com.sgdevcamp.membershipservice.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
@@ -86,6 +88,12 @@ public class UserController {
     @GetMapping("/auth/name/{id}")
     public Response<NameAndPhotoResponse> getNameAndPhotoById(@PathVariable(value = "id") Long id) {
         return responseService.getDataResponse(userService.getNameAndPhoto(id));
+    }
+
+    @GetMapping(value = "/users/summary/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getUserSummary(@PathVariable("username") String username) {
+        log.info("retrieving user {}", username);
+        return ResponseEntity.ok(convertTo(userService.findByUsername(username)));
     }
 
     @GetMapping("/auth/profile")
@@ -182,5 +190,15 @@ public class UserController {
             log.info("탈퇴에 실패했습니다.");
         }
         return responseService.getSuccessResponse();
+    }
+
+    private UserSummary convertTo(User user) {
+        return UserSummary
+                .builder()
+                .id(user.getId().toString())
+                .username(user.getUsername())
+                .name(user.getName())
+                .profilePicture(user.getProfile().getPath())
+                .build();
     }
 }
