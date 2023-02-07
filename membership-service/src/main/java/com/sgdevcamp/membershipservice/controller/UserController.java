@@ -90,7 +90,7 @@ public class UserController {
         return responseService.getDataResponse(userService.getNameAndPhoto(id));
     }
 
-    @GetMapping(value = "/users/summary/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/auth/summary/{username}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getUserSummary(@PathVariable("username") String username) {
         log.info("retrieving user {}", username);
         return ResponseEntity.ok(convertTo(userService.findByUsername(username)));
