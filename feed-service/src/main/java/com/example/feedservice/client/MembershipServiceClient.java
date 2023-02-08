@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestHeader;
 
 import java.util.List;
 
-@FeignClient(name="auth-service")
-public interface AuthServiceClient {
+@FeignClient(name="membership-service")
+public interface MembershipServiceClient {
 
     @PostMapping("/membership-server/login")
     ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody ServiceLoginRequest request);
