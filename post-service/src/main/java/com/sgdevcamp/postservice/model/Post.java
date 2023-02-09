@@ -12,7 +12,6 @@ import org.springframework.data.mongodb.core.mapping.DocumentReference;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 @Data
 @Builder
@@ -34,7 +33,8 @@ public class Post {
 
     private Long likeCount;
 
-    private Set<String> hashTags;
+    @DocumentReference
+    private List<Hashtag> hashTags;
 
     @CreatedDate
     private Instant createdAt;
