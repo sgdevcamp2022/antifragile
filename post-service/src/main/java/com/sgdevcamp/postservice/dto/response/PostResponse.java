@@ -16,17 +16,19 @@ public class PostResponse {
 
     private String username;
 
-    private List<String> images;
+    private String userProfilePic;
+
+    private List<String> imageUrl;
 
     private String content;
-
-    private String profile;
 
     private int commentCount;
 
     private Long likeCount;
 
-    private Set<String> hashTags;
+    private List<String> hashTags;
 
     private Instant createdAt;
+
+    private Instant updatedAt;
 }

@@ -14,5 +14,5 @@ public class PostRequest {
 
     private String content;
 
-    private Set<String> hashTags;
+    private List<String> hashTags;
 }
