@@ -21,11 +21,12 @@ import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.*;
 @Service
 @RequiredArgsConstructor
 public class PostService {
+    private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
+    private final HashtagService hashtagService;
     private final CommentLikeRepository commentLikeRepository;
-    private final ProfileRepository profileRepository;
     private final PostEventSender postEventSender;
 
     public PostResponse createPost(PostRequest postRequest){
@@ -40,9 +41,11 @@ public class PostService {
         post = postRepository.save(post);
         postEventSender.sendPostCreated(post);
 
+        hashtagService.createHashtags(postRequest.getHashTags(), post);
+
         PostResponse postResponse = PostResponse.builder()
                 .username(post.getUsername())
-                .images(post.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
+                .imageUrl(post.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                 .content(post.getContent())
                 .commentCount(0)
                 .likeCount(0L)
@@ -55,20 +58,12 @@ public class PostService {
         return postResponse;
     }
 
-    public void createProfile(String username, String image){
-        Profile profile = Profile.builder()
-                .username(username)
-                .image(image)
-                .build();
-
-        profileRepository.save(profile);
-    }
-
     public void deletePost(String post_id, String username){
         postRepository
                 .findById(post_id)
                 .map(post ->{
                     if(!post.getUsername().equals(username)) throw new CustomException(NOT_ALLOWED_USER);
+                    hashtagService.deleteHashtags(post.getHashTags());
                     postRepository.delete(post);
                     commentRepository.deleteByPostId(post_id);
                     postLikeRepository.deleteByPostId(post_id);
@@ -86,7 +81,7 @@ public class PostService {
                 .map(p -> PostResponse.builder()
                         .id(p.getId())
                         .username(p.getUsername())
-                        .images(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
+                        .imageUrl(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                         .content(p.getContent())
                         .commentCount(p.getCommentCount())
                         .likeCount(p.getLikeCount())
@@ -97,17 +92,20 @@ public class PostService {
     }
 
     public List<PostResponse> postsByIdIn(List<String> ids){
+
         return postRepository.findByIdInOrderByCreatedAtDesc(ids)
                 .stream()
                 .map(p -> PostResponse.builder()
                         .id(p.getId())
                         .username(p.getUsername())
-                        .images(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
+                        .imageUrl(p.getImages().stream().map(i -> i.getPath()).collect(Collectors.toList()))
                         .content(p.getContent())
+                        .userProfilePic(userRepository.findByUsername(p.getUsername())
+                                .orElseThrow(()->{throw new CustomException(NOT_FOUND_USER);}).getImageUrl())
                         .commentCount(p.getCommentCount())
                         .likeCount(p.getLikeCount())
-                        .hashTags(p.getHashTags())
                         .createdAt(p.getCreatedAt())
+                        .updatedAt(p.getUpdatedAt())
                         .build())
                 .collect(Collectors.toList());
     }
