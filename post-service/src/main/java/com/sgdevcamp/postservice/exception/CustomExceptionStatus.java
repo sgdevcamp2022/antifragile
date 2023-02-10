@@ -13,7 +13,9 @@ public enum CustomExceptionStatus {
     NOT_FOUND_POST(false, 1100, "요청한 게시글을 찾을 수 없습니다."),
     NOT_FOUND_COMMENT(false, 1101, "요청한 댓글을 찾을 수 없습니다."),
     NOT_FOUND_USER(false, 1102, "유저를 찾을 수 없습니다."),
-    NOT_FOUND_HASHTAG(false, 1103, "해시태그가 없습니다.");
+    NOT_FOUND_HASHTAG(false, 1103, "해시태그가 없습니다."),
+
+    ALREADY_EXIST_USER(false, 1200, "이미 존재하는 유저입니다.");
 
     private final boolean isSuccess;
     private final int code;
