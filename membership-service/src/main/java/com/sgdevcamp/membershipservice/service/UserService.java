@@ -38,7 +38,6 @@ import static com.sgdevcamp.membershipservice.exception.CustomExceptionStatus.IN
 @Slf4j
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class UserService {
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
@@ -137,6 +136,7 @@ public class UserService {
         return userRepository.findByUsernameIn(usernames);
     }
 
+    @Transactional
     public MailResponse sendEmail(String email) {
         String VERIFICATION_LINK = "http://localhost:5555/membership-server/verify";
         User exist = userRepository.findByEmailAndRoleLike(email, UserRole.ROLE_USER).orElse(null);
@@ -168,6 +168,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public void updateRole(String email, String username, UserRole userRole) {
         User user = userRepository.findByUsernameOrEmail(username, email)
                 .orElseThrow(() -> new CustomException(CustomExceptionStatus.ACCOUNT_NOT_VALID));
@@ -227,6 +228,7 @@ public class UserService {
         user.updateProfile(profile);
     }
 
+    @Transactional
     public void sendMailToChangePassword(User user) {
         String CHANGE_PASSWORD_LINK = "http://localhost:5555/password/";
 
@@ -242,6 +244,7 @@ public class UserService {
         return !memberId.equals("");
     }
 
+    @Transactional
     public void changePassword(User user, String password) {
         if(user == null) throw new CustomException(ACCOUNT_NOT_FOUND);
         String salt = saltUtil.genSalt();
