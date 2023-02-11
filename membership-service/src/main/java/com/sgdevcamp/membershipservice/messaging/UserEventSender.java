@@ -37,6 +37,12 @@ public class UserEventSender {
         sendUserChangedEvent(payload);
     }
 
+    public void sendUserDeleted(User user){
+        log.info("sending user deleted event for user {}", user.getUsername());
+
+        sendUserChangedEvent(convertTo(user, UserEventType.DELETED));
+    }
+
     private void sendUserChangedEvent(UserEventPayload payload) {
 
         Message<UserEventPayload> message =
