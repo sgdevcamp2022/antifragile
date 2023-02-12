@@ -6,5 +6,8 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import java.util.Optional;
 
 public interface HashtagRepository extends MongoRepository<Hashtag, String> {
-    Optional<Hashtag> findByTag(String tag);
+
+    Optional<Hashtag> findByPostId(String post_id);
+
+    Long deleteAllByPostId(String post_id);
 }
