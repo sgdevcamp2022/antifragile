@@ -6,7 +6,6 @@ import lombok.Setter;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -29,6 +28,4 @@ public class PostResponse {
     private List<String> hashTags;
 
     private Instant createdAt;
-
-    private Instant updatedAt;
 }
