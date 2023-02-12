@@ -8,4 +8,6 @@ public interface PostLikeRepository extends MongoRepository<PostLike, String> {
 
     void deleteByPostIdAndUsername(String post_id, String username);
 
+    Long countByPostId(String post_id);
+
 }
