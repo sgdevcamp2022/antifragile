@@ -1,5 +1,6 @@
 package com.sgdevcamp.postservice.model;
 
+import com.sgdevcamp.postservice.dto.response.CommentResponse;
 import lombok.Builder;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedBy;
@@ -33,4 +34,13 @@ public class Comment {
 
     @LastModifiedDate
     private Instant updatedAt;
+
+    public CommentResponse toResponse(){
+        return CommentResponse.builder()
+                .id(id)
+                .username(username)
+                .content(content)
+                .createdAt(createdAt)
+                .build();
+    }
 }
