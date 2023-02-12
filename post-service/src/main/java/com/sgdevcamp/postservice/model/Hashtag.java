@@ -1,7 +1,6 @@
 package com.sgdevcamp.postservice.model;
 
 import java.time.Instant;
-import java.util.List;
 
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.Id;
@@ -21,7 +20,7 @@ public class Hashtag {
     private String tag;
 
     @DocumentReference
-    private List<Post> posts;
+    private Post postId;
 
     @CreatedDate
     private Instant createdAt;
