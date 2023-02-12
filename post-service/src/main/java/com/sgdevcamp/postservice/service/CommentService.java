@@ -70,4 +70,11 @@ public class CommentService {
         log.info("delete comment {}", comment_id);
     }
 
+    public void deleteByPostId(String post_id){
+
+        commentRepository.deleteByPostId(post_id);
+
+        log.info("delete comment of post {}", post_id);
+    }
+
 }
