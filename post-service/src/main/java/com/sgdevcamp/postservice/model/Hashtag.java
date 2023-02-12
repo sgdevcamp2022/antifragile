@@ -23,8 +23,6 @@ public class Hashtag {
     @DocumentReference
     private List<Post> posts;
 
-    private Long count;
-
     @CreatedDate
     private Instant createdAt;
 }
