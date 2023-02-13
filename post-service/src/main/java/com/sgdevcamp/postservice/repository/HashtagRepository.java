@@ -9,5 +9,5 @@ public interface HashtagRepository extends MongoRepository<Hashtag, String> {
 
     Optional<Hashtag> findByPostId(String post_id);
 
-    Long deleteAllByPostId(String post_id);
+    Long deleteAllInBatchByPostId(String post_id);
 }

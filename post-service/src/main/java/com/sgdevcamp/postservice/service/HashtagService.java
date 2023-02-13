@@ -30,6 +30,6 @@ public class HashtagService {
     }
 
     public void deleteHashtags(String post_id){
-        hashtagRepository.deleteAllByPostId(post_id);
+        if(hashtagRepository.findByPostId(post_id).isPresent()) hashtagRepository.deleteAllInBatchByPostId(post_id);
     }
 }
