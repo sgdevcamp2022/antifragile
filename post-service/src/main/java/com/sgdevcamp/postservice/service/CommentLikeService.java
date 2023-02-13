@@ -35,7 +35,6 @@ public class CommentLikeService {
     }
 
     public void cancelAllCommentLike(String post_id){
-
-        if(!commentLikeRepository.findAllByPostId(post_id).isEmpty()) commentLikeRepository.deleteAllInBatchByPostId(post_id);
+        if(commentLikeRepository.findByPostId(post_id).isPresent()) commentLikeRepository.deleteAllInBatchByPostId(post_id);
     }
 }
