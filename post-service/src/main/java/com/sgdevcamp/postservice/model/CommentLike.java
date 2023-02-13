@@ -13,6 +13,8 @@ public class CommentLike {
     @Id
     private String id;
 
+    private String commentId;
+
     private String postId;
 
     @CreatedBy

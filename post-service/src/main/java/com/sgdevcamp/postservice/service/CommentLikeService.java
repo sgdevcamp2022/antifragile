@@ -13,15 +13,18 @@ public class CommentLikeService {
 
     private final CommentLikeRepository commentLikeRepository;
 
-    public void likeComment(String post_id, String comment_id){
+    public String likeComment(String post_id, String comment_id){
 
         CommentLike commentLike = CommentLike.builder()
+                .commentId(comment_id)
                 .postId(post_id)
                 .build();
 
-        commentLikeRepository.save(commentLike);
+        CommentLike save_CommentLike = commentLikeRepository.save(commentLike);
 
         log.info("save comment {} like of post {}", comment_id, post_id);
+
+        return save_CommentLike.getId();
     }
 
     public void cancelCommentLike(String post_id, String comment_id){
@@ -29,5 +32,10 @@ public class CommentLikeService {
         commentLikeRepository.deleteById(comment_id);
 
         log.info("delete comment {} of post {}", comment_id, post_id);
+    }
+
+    public void cancelAllCommentLike(String post_id){
+
+        if(!commentLikeRepository.findAllByPostId(post_id).isEmpty()) commentLikeRepository.deleteAllInBatchByPostId(post_id);
     }
 }
