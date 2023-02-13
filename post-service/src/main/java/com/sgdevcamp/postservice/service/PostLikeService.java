@@ -45,9 +45,6 @@ public class PostLikeService {
     }
 
     public void deleteAllPostLike(String post_id){
-
-        if(postLikeRepository.findByPostId(post_id).isEmpty()) throw new CustomException(NOT_FOUND_POSTLIKE);
-
-        postLikeRepository.deleteAllInBatchByPostId(post_id);
+        if(!postLikeRepository.findByPostId(post_id).isEmpty()) postLikeRepository.deleteAllInBatchByPostId(post_id);
     }
 }
