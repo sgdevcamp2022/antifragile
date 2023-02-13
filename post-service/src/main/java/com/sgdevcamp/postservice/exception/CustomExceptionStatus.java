@@ -14,6 +14,7 @@ public enum CustomExceptionStatus {
     NOT_FOUND_COMMENT(false, 1101, "요청한 댓글을 찾을 수 없습니다."),
     NOT_FOUND_USER(false, 1102, "유저를 찾을 수 없습니다."),
     NOT_FOUND_HASHTAG(false, 1103, "해시태그가 없습니다."),
+    NOT_FOUND_POSTLIKE(false, 1104, "포스트에 좋아요를 누른 적이 없습니다."),
 
     ALREADY_EXIST_USER(false, 1200, "이미 존재하는 유저입니다.");
 
