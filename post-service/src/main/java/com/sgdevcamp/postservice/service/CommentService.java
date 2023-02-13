@@ -77,4 +77,8 @@ public class CommentService {
         log.info("delete comment of post {}", post_id);
     }
 
+    public void deleteAllByPostId(String post_id){
+        if(commentRepository.findByPostId(post_id).isPresent()) commentRepository.deleteAllInBatchByPostId(post_id);
+    }
+
 }
