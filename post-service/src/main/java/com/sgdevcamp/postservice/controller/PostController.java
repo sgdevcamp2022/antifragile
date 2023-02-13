@@ -1,12 +1,12 @@
 package com.sgdevcamp.postservice.controller;
 
+import com.sgdevcamp.postservice.dto.request.CommentCreateRequest;
 import com.sgdevcamp.postservice.dto.request.CommentUpdateRequest;
 import com.sgdevcamp.postservice.dto.request.PostRequest;
 import com.sgdevcamp.postservice.dto.response.CommonResponse;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
-import com.sgdevcamp.postservice.service.PostService;
-import com.sgdevcamp.postservice.service.ResponseService;
+import com.sgdevcamp.postservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -16,30 +16,41 @@ import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
 
-import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.NOT_ALLOWED_USER;
+import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.*;
 
 @Slf4j
 @RestController
 @RequestMapping("/post-server")
 @RequiredArgsConstructor
 public class PostController {
+
     private final PostService postService;
+    private final PostLikeService postLikeService;
+    private final CommentService commentService;
+    private final CommentLikeService commentLikeService;
+    private final HashtagService hashtagService;
     private final ResponseService responseService;
 
     @PostMapping("/posts")
     public CommonResponse createPost(@RequestBody PostRequest postRequest){
+
         log.info("received a request to create a post for image {}", postRequest);
 
         return responseService.getDataResponse(postService.createPost(postRequest));
     }
 
     @DeleteMapping("/posts/{id}")
-    public CommonResponse deletePost(@PathVariable("id") String id, @AuthenticationPrincipal Principal principal) {
+    public CommonResponse deletePost(@PathVariable("id") String post_id, @AuthenticationPrincipal Principal principal) {
+
         if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
 
-        log.info("received a delete request for post id {} from user {}", id, principal.getName());
+        log.info("received a delete request for post id {} from user {}", post_id, principal.getName());
 
-        postService.deletePost(id, principal.getName());
+        postService.deletePost(post_id, principal.getName());
+        postLikeService.deleteAllPostLike(post_id);
+        commentService.deleteAllByPostId(post_id);
+        commentLikeService.cancelAllCommentLike(post_id);
+        hashtagService.deleteHashtags(post_id);
 
         return responseService.getSuccessResponse();
     }
@@ -81,19 +92,27 @@ public class PostController {
 
     @PostMapping("/posts/{postId}/comments")
     public CommonResponse createComment(@PathVariable(value = "postId") String post_id,
-                                        @RequestBody CommentUpdateRequest commentUpdateRequest) {
-        return responseService.getDataResponse(postService.createComment(post_id, commentUpdateRequest));
+                                        @RequestBody CommentCreateRequest commentCreateRequest) {
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+
+        return responseService.getDataResponse(commentService.createComment(commentCreateRequest));
     }
 
     @GetMapping("/posts/{postId}/comments")
     public CommonResponse getComments(@PathVariable(value = "postId") String post_id) {
-        return responseService.getDataResponse(postService.findAllComment(post_id));
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+
+        return responseService.getDataResponse(commentService.findAllComment(post_id));
     }
 
     @PatchMapping("/posts/{postId}/comments")
     public CommonResponse updateComment(@PathVariable(value = "postId") String post_id,
                                         @RequestBody CommentUpdateRequest commentUpdateRequest) {
-        postService.updateComment(post_id, commentUpdateRequest);
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+        commentService.updateComment(commentUpdateRequest);
 
         return responseService.getSuccessResponse();
     }
@@ -101,7 +120,9 @@ public class PostController {
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public CommonResponse deleteComment(@PathVariable(value = "postId") String post_id,
                                       @PathVariable(value = "commentId") String comment_id) {
-        postService.deleteComment(comment_id, post_id);
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+        commentService.deleteComment(comment_id);
 
         log.info("post {} is successfully deleted", post_id);
 
@@ -109,14 +130,51 @@ public class PostController {
     }
 
     @PostMapping("/posts/{postId}/like")
-    public CommonResponse likePost(@PathVariable(value = "postId") String post_id){
-        postService.likePost(post_id, "b");
+    public CommonResponse likePost(@AuthenticationPrincipal Principal principal,
+                                   @PathVariable(value = "postId") String post_id){
+
+        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
+
+        String like_id = postLikeService.likePost(post_id, principal.getName());
+
+        return responseService.getDataResponse(like_id);
+    }
+
+    @DeleteMapping("/posts/{postId}/like/{likeId}")
+    public CommonResponse cancelPostLike(@AuthenticationPrincipal Principal principal,
+                                         @PathVariable(value = "postId") String post_id,
+                                         @PathVariable(value = "likeId") String like_id){
+
+        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
+
+        postLikeService.deletePostLike(like_id);
+
+        log.info("user {} delete to like post {}", principal.getName(), post_id);
+
         return responseService.getSuccessResponse();
     }
 
-    @DeleteMapping("/posts/{postId}/like")
-    public CommonResponse cancelPostLike(@PathVariable(value = "postId") String post_id){
-        postService.cancelPostLike(post_id, "b");
+    @PostMapping("/posts/{postId}/like/comment/{commentId}")
+    public CommonResponse likeComment(@PathVariable(value = "postId") String post_id,
+                                      @PathVariable(value = "commentId") String comment_id){
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+        if(!commentService.isExistComment(comment_id)) throw new CustomException(NOT_FOUND_COMMENT);
+
+        commentLikeService.likeComment(post_id, comment_id);
+
+        return responseService.getSuccessResponse();
+    }
+
+    @DeleteMapping("/posts/{postId}/like/comment/{commentId}")
+    public CommonResponse cancelCommentLike(@PathVariable(value = "postId") String post_id,
+                                            @PathVariable(value = "commentId") String comment_id){
+
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+        if(!commentService.isExistComment(comment_id)) throw new CustomException(NOT_FOUND_COMMENT);
+
+        commentLikeService.cancelCommentLike(post_id, comment_id);
+
         return responseService.getSuccessResponse();
     }
 }
