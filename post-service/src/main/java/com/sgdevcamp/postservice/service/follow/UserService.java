@@ -15,9 +15,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.USERNAME_ALREADY_EXIST;
 import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.USERNAME_NOT_EXIST;
+import static java.util.stream.Collectors.toMap;
 
 @Slf4j
 @Service("follow-UserService")
@@ -141,5 +144,18 @@ public class UserService {
         log.info("found {} that user {} is following", following.size(), username);
 
         return following;
+    }
+
+   public Map<String, String> usersProfilePic(List<String> usernames){
+
+        List<User> users = userRepository.findByUsernameIn(usernames);
+
+        return users.stream().collect(toMap(User::getUsername,
+                User::getProfilePic));
+    }
+
+    public User findUser(String username){
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> {throw new CustomException(USERNAME_NOT_EXIST);});
     }
 }

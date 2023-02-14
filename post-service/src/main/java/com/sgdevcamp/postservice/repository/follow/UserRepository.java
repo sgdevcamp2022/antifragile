@@ -16,6 +16,7 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
 
     Optional<User> findByUserId(String userId);
     Optional<User> findByUsername(String username);
+    List<User> findByUsernameIn(List<String> usernames);
 
     @Query("MATCH (n)-[r:IS_FOLLOWING]->() where n.username = $username RETURN COUNT(r)")
     Long findOutDegree(@Param("username") String username);
