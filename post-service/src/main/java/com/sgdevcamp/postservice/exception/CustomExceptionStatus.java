@@ -21,7 +21,13 @@ public enum CustomExceptionStatus {
 
     // follow-service
     USERNAME_ALREADY_EXIST(false, 6001, "이미 존재하는 유저입니다."),
-    USERNAME_NOT_EXIST(false, 6002, "존재하지 않는 유저입니다.");
+    USERNAME_NOT_EXIST(false, 6002, "존재하지 않는 유저입니다."),
+
+    // feed-service
+    UNABLE_TO_GET_USER(false, 7001, "유저 정보를 가져올 수 없습니다."),
+    UNABLE_TO_GET_FOLLOWERS(false, 7002, "유저의 팔로워 정보를 가져올 수 없습니다."),
+    UNABLE_TO_GET_POST(false, 7003, "포스트를 가져올 수 없습니다."),
+    UNABLE_TO_GET_FEED(false, 7004, "피드를 가져올 수 없습니다.");
 
     private final boolean isSuccess;
     private final int code;
