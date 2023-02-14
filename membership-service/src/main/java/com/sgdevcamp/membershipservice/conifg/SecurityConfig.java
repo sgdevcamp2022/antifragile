@@ -34,7 +34,8 @@ public class SecurityConfig {
                 .and()
                     .authorizeRequests()
                         .antMatchers("/membership-server/signup", "/membership-server/login",
-                                "/membership-service/check-email", "/membership-service/password/*").permitAll()
+                                "/membership-service/check-email", "/membership-service/password/*", "/swagger-resources/**",
+                                "/swagger-ui/index.html", "/swagger-ui/**", "/v2/api-docs", "/webjars/**").permitAll()
                         .anyRequest().authenticated()
                 .and()
                     .logout()
