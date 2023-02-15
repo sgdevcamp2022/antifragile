@@ -46,9 +46,14 @@ services:
     environment:
       MYSQL_ROOT_PASSWORD: 2022
       MYSQL_DATABASE: instagram
+  redis:
+    image: redis:latest
+    volumes:
+      - redis-vol:/var/lib/redis
 
 volumes:
   mysql-vol:
   mongo-vol:
   cassandra-vol:
+  redis-vol:
 
