@@ -28,6 +28,7 @@ public class SecurityConfig {
                 .httpBasic().disable()
                 .cors().and()
                 .csrf().disable()
+                .formLogin().disable()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                     .exceptionHandling().authenticationEntryPoint(customAuthenticationEntryPoint)
