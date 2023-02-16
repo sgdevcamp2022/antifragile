@@ -6,13 +6,16 @@ import com.sgdevcamp.postservice.dto.request.PostRequest;
 import com.sgdevcamp.postservice.dto.response.CommonResponse;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
+import com.sgdevcamp.postservice.model.Image;
 import com.sgdevcamp.postservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -29,12 +32,20 @@ public class PostController {
     private final CommentService commentService;
     private final CommentLikeService commentLikeService;
     private final HashtagService hashtagService;
+    private final UploadService uploadService;
     private final ResponseService responseService;
 
     @PostMapping("/posts")
-    public CommonResponse createPost(@RequestBody PostRequest postRequest){
+    public CommonResponse createPost(@RequestBody PostRequest postRequest,
+                                     @RequestPart List<MultipartFile> multipartFiles,
+                                     @AuthenticationPrincipal Principal principal) throws IOException {
+
+        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
 
         log.info("received a request to create a post for image {}", postRequest);
+
+        List<Image> saved_image = uploadService.save(multipartFiles, principal.getName());
+        postRequest.setImages(saved_image);
 
         return responseService.getDataResponse(postService.createPost(postRequest));
     }
