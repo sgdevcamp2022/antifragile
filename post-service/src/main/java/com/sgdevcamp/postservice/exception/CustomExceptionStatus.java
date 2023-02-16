@@ -19,6 +19,8 @@ public enum CustomExceptionStatus {
 
     ALREADY_EXIST_USER(false, 1200, "이미 존재하는 유저입니다."),
 
+    FILE_CONVERT_FAIL(false, 1300, "변환할 수 없는 파일입니다."),
+
     // follow-service
     USERNAME_ALREADY_EXIST(false, 6001, "이미 존재하는 유저입니다."),
     USERNAME_NOT_EXIST(false, 6002, "존재하지 않는 유저입니다."),
