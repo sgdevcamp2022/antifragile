@@ -49,6 +49,12 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    public Post getPostById(String id){
+
+        return postRepository.findById(id).orElseThrow(() ->
+                new CustomException(NOT_FOUND_POST));
+    }
+
     public List<PostResponse> postsByIdIn(List<String> ids){
 
         return postRepository.findByIdInOrderByCreatedAtDesc(ids)

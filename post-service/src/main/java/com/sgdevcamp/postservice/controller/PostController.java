@@ -7,6 +7,7 @@ import com.sgdevcamp.postservice.dto.response.CommonResponse;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
 import com.sgdevcamp.postservice.model.Image;
+import com.sgdevcamp.postservice.model.Post;
 import com.sgdevcamp.postservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +56,11 @@ public class PostController {
     public CommonResponse deletePost(@PathVariable("id") String post_id, @AuthenticationPrincipal Principal principal) {
 
         if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
+        Post post = postService.getPostById(post_id);
 
         log.info("received a delete request for post id {} from user {}", post_id, principal.getName());
 
+        uploadService.delete(post.getImages());
         postService.deletePost(post_id, principal.getName());
         postLikeService.deleteAllPostLike(post_id);
         commentService.deleteAllByPostId(post_id);

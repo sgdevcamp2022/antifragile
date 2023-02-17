@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -20,5 +21,9 @@ public class UploadService {
     @Transactional
     public List<Image> save(List<MultipartFile> multipartFiles, String username) throws IOException {
         return s3Service.uploadMediaToS3(multipartFiles, username);
+    }
+
+    public void delete(List<Image> images){
+        s3Service.deleteMediaToS3(images.stream().map(Image::getPath).collect(Collectors.toList()));
     }
 }
