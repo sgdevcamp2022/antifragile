@@ -45,6 +45,9 @@ public class UserService {
     private final RedisTemplate redisTemplate;
     private final UserEventSender userEventSender;
     private final MyUserDetailsService myUserDetailsService;
+    private final Profile default_profile = Profile.builder()
+            .path("https://instagramimages16.s3.ap-northeast-2.amazonaws.com/%EA%B8%B0%EB%B3%B8+%ED%94%84%EC%82%AC.jfif")
+            .build();
 
     public UserDto signUp(UserDto signupForm){
         if (userRepository.findByUsername(signupForm.getUsername()).isPresent()) throw new CustomException(CustomExceptionStatus.DUPLICATED_USERNAME);
@@ -58,7 +61,7 @@ public class UserService {
                 .username(signupForm.getUsername())
                 .password(saltUtil.encodePassword(salt, password))
                 .name(signupForm.getName())
-                .profile(signupForm.getProfile())
+                .profile(signupForm.getProfile() != null ? signupForm.getProfile() : default_profile)
                 .role(UserRole.ROLE_NOT_PERMITTED)
                 .introduction(signupForm.getIntroduction())
                 .access_time(LocalDateTime.now())
