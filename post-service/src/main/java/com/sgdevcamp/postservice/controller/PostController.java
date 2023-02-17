@@ -33,6 +33,7 @@ public class PostController {
     private final CommentLikeService commentLikeService;
     private final HashtagService hashtagService;
     private final UploadService uploadService;
+    private final ProfileService profileService;
     private final ResponseService responseService;
 
     @PostMapping("/posts")
@@ -64,6 +65,11 @@ public class PostController {
         hashtagService.deleteHashtags(post_id);
 
         return responseService.getSuccessResponse();
+    }
+
+    @GetMapping("/profile/{username}")
+    public CommonResponse getUserProfile(String username){
+        return responseService.getDataResponse(profileService.getUserProfile(username));
     }
 
     @GetMapping("/posts/me")

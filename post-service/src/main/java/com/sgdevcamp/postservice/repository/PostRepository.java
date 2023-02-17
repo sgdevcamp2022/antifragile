@@ -9,4 +9,6 @@ public interface PostRepository extends MongoRepository<Post, String> {
     List<Post> findByUsernameOrderByCreatedAtDesc(String username);
 
     List<Post> findByIdInOrderByCreatedAtDesc(List<String> ids);
+
+    int countByUsername(String username);
 }
