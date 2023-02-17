@@ -18,7 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -78,6 +80,19 @@ public class PostServiceTest {
 
         // then
         assertEquals(postService.isExistPost("1"), true);
+    }
+
+    @Test
+    @DisplayName("고유 식별자로 게시글 조회")
+    public void getPostById() {
+        // given
+        when(postRepository.findById(any())).thenReturn(Optional.of(post));
+
+        // when
+        Post post = postService.getPostById("1");
+
+        // then
+        assertThat(post).isNotNull();
     }
 
     @Test
