@@ -1,8 +1,9 @@
 package com.sgdevcamp.postservice.feed;
 
-import com.sgdevcamp.postservice.model.feed.UserFeed;
-import com.sgdevcamp.postservice.repository.feed.FeedRepository;
-import com.sgdevcamp.postservice.service.PostService;
+import com.sgdevcamp.postservice.dto.follow.response.PagedResult;
+import com.sgdevcamp.postservice.model.Post;
+import com.sgdevcamp.postservice.model.follow.User;
+import com.sgdevcamp.postservice.repository.PostRepository;
 import com.sgdevcamp.postservice.service.feed.FeedService;
 import com.sgdevcamp.postservice.service.follow.UserService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,12 +13,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.cassandra.core.query.CassandraPageRequest;
-import org.springframework.data.domain.Slice;
-import org.springframework.data.domain.SliceImpl;
 
-import java.nio.ByteBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,41 +29,42 @@ public class FeedServiceTest {
     private FeedService feedService;
 
     @Mock
+    private PostRepository postRepository;
+
+    @Mock
     private UserService userService;
-
-    @Mock
-    private PostService postService;
-
-    @Mock
-    private FeedRepository feedRepository;
-
-    private UserFeed userFeed;
 
     @BeforeEach
     public void beforeEach(){
 
-        userFeed = UserFeed.builder()
-                .username("userA")
-                .build();
     }
 
     @Test
-    @DisplayName("피드 가져오기")
+    @DisplayName("팔로잉 유저가 올린 최신 피드 가져오기")
     public void getUserFeed(){
         // given
-        int pageSize = 10;
-        CassandraPageRequest pageRequest = CassandraPageRequest.first(pageSize);
-        Optional<String> pagingStateOptional = Optional.ofNullable(pageRequest.getPagingState())
-                .map(ByteBuffer::array)
-                .map(String::new);
+        int page = 20;
+        String user_id = "1";
 
-        List<UserFeed> userFeeds =  new ArrayList<>();
-        userFeeds.add(userFeed);
+        PagedResult<User> followings = new PagedResult<>();
+        List<User> content = new ArrayList<>();
+        content.add(User.builder().userId("1").build());
+        followings.setContent(content);
+        followings.setPage(20);
 
-        Slice<UserFeed> page = new SliceImpl<>(userFeeds);
-        when(feedRepository.findByUsername(any(), any())).thenReturn(page);
+        List<Post> posts = new ArrayList<>();
 
-        // when, then
-        assertThat(feedService.getUserFeed(userFeed.getUsername(), pagingStateOptional)).isNotNull();
+        Post post = Post.builder()
+                .content("hi")
+                .images(new ArrayList<>())
+                .build();
+
+        // when
+        when(postRepository.findById(any())).thenReturn(Optional.of(post));
+        when(userService.findPaginatedFollowings(user_id, 0, page)).thenReturn(followings);
+        when(postRepository.findByCreatedAtGreaterThanAndUserIdInOrderByCreatedAtDesc(any(), any())).thenReturn(posts);
+
+        // then
+        assertThat(feedService.getUserFeed(user_id, "1", Optional.of("2"))).isNotNull();
     }
 }
