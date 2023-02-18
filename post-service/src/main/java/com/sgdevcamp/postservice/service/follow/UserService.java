@@ -127,6 +127,15 @@ public class UserService {
         return buildPagedResult(followers);
     }
 
+    public PagedResult<User> findPaginatedFollowings(String userId, int page, int size){
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<User> followings = userRepository.findFollowings(userId, pageable);
+        log.info("found {} followings for user {}", followings.getTotalElements(), userId);
+
+        return buildPagedResult(followings);
+    }
+
     private PagedResult<User> buildPagedResult(Page<User> page){
         return PagedResult
                 .<User>builder()
