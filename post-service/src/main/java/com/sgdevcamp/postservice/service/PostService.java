@@ -72,6 +72,14 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
+    public List<PostResponse> postsByUserIdIn(List<String> ids){
+
+        return postRepository.findByUserIdInOrderByCreatedAtDesc(ids)
+                .stream()
+                .map(Post::toResponse)
+                .collect(Collectors.toList());
+    }
+
     public Post updatePost(String post_id, PostUpdateRequest postUpdateRequest){
 
         Post post = postRepository.findById(post_id).orElseThrow(() -> {throw new CustomException(NOT_FOUND_POST);});

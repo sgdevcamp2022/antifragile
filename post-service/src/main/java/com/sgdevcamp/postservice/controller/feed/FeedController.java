@@ -2,7 +2,6 @@ package com.sgdevcamp.postservice.controller.feed;
 
 import com.sgdevcamp.postservice.dto.feed.SlicedResult;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
-import com.sgdevcamp.postservice.service.feed.FeedGeneratorService;
 import com.sgdevcamp.postservice.service.feed.FeedService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,18 +17,14 @@ import java.util.Optional;
 public class FeedController {
 
     private final FeedService feedService;
-    private final FeedGeneratorService feedGeneratorService;
 
-    @PostMapping("/feed/{username}")
+    @GetMapping("/feed/{userId}")
     public ResponseEntity<SlicedResult<PostResponse>> getFeed(
-            @PathVariable String username,
+            @PathVariable("userId") String user_id, @RequestParam String last_post_id,
             @RequestParam(value = "ps",required = false) Optional<String> pagingState) {
 
-        log.info("fetching feed for user {} isFirstPage {}",
-                username, pagingState.isEmpty());
+        log.info("fetching feed for user {} isFirstPage {}", user_id, pagingState.isEmpty());
 
-        feedGeneratorService.addToFeed(username);
-
-        return ResponseEntity.ok(feedService.getUserFeed(username, pagingState));
+        return ResponseEntity.ok(feedService.getUserFeed(user_id, last_post_id, pagingState));
     }
 }
