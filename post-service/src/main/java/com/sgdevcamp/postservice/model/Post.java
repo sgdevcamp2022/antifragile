@@ -21,6 +21,8 @@ public class Post {
     @Id
     private String id;
 
+    private String userId;
+
     @CreatedBy
     private String username;
 
