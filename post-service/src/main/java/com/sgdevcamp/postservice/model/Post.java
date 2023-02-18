@@ -1,5 +1,6 @@
 package com.sgdevcamp.postservice.model;
 
+import com.sgdevcamp.postservice.dto.request.PostUpdateRequest;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import lombok.Builder;
 import lombok.Data;
@@ -49,5 +50,11 @@ public class Post {
                 .hashTags(hashTags)
                 .createdAt(createdAt)
                 .build();
+    }
+
+    public void update(PostUpdateRequest postUpdateRequest){
+        this.content = postUpdateRequest.getContent();
+        this.hashTags = postUpdateRequest.getHashTags();
+        this.updatedAt = Instant.now();
     }
 }

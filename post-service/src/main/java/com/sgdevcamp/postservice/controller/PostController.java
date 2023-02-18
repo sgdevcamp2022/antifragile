@@ -3,6 +3,7 @@ package com.sgdevcamp.postservice.controller;
 import com.sgdevcamp.postservice.dto.request.CommentCreateRequest;
 import com.sgdevcamp.postservice.dto.request.CommentUpdateRequest;
 import com.sgdevcamp.postservice.dto.request.PostRequest;
+import com.sgdevcamp.postservice.dto.request.PostUpdateRequest;
 import com.sgdevcamp.postservice.dto.response.CommonResponse;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
@@ -50,6 +51,21 @@ public class PostController {
         postRequest.setImages(saved_image);
 
         return responseService.getDataResponse(postService.createPost(postRequest));
+    }
+
+    @PutMapping("/posts/{id}")
+    public CommonResponse updatePost(@PathVariable("id") String post_id,
+                                     @RequestBody PostUpdateRequest postUpdateRequest,
+                                     @AuthenticationPrincipal Principal principal){
+
+        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
+        if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
+
+        log.info("received a request to update a post {}", post_id);
+
+        postService.updatePost(post_id, postUpdateRequest);
+
+        return responseService.getSuccessResponse();
     }
 
     @DeleteMapping("/posts/{id}")
