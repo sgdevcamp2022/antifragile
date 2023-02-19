@@ -14,14 +14,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.MediaType;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.security.Principal;
 import java.util.List;
 
 import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.*;
@@ -43,14 +39,11 @@ public class PostController {
 
     @PostMapping(value = "/posts", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public CommonResponse createPost(PostRequest postRequest,
-                                     @RequestPart("multipartFiles") List<MultipartFile> multipartFiles,
-                                     @AuthenticationPrincipal Principal principal) throws IOException {
-
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
+                                     @RequestPart("multipartFiles") List<MultipartFile> multipartFiles) throws IOException {
 
         log.info("received a request to create a post for image {}", postRequest);
 
-        List<Image> saved_image = uploadService.save(multipartFiles, principal.getName());
+        List<Image> saved_image = uploadService.save(multipartFiles, postRequest.getUsername());
         postRequest.setImages(saved_image);
 
         return responseService.getDataResponse(postService.createPost(postRequest));
@@ -58,10 +51,8 @@ public class PostController {
 
     @PutMapping("/posts/{id}")
     public CommonResponse updatePost(@PathVariable("id") String post_id,
-                                     @RequestBody PostUpdateRequest postUpdateRequest,
-                                     @AuthenticationPrincipal Principal principal){
+                                     @RequestBody PostUpdateRequest postUpdateRequest){
 
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
         if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
 
         log.info("received a request to update a post {}", post_id);
@@ -72,15 +63,14 @@ public class PostController {
     }
 
     @DeleteMapping("/posts/{id}")
-    public CommonResponse deletePost(@PathVariable("id") String post_id, @AuthenticationPrincipal Principal principal) {
+    public CommonResponse deletePost(@PathVariable("id") String post_id, @RequestParam("username") String username) {
 
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
         Post post = postService.getPostById(post_id);
 
-        log.info("received a delete request for post id {} from user {}", post_id, principal.getName());
+        log.info("received a delete request for post id {} from user {}", post_id, username);
 
         uploadService.delete(post.getImages());
-        postService.deletePost(post_id, principal.getName());
+        postService.deletePost(post_id, username);
         postLikeService.deleteAllPostLike(post_id);
         commentService.deleteAllByPostId(post_id);
         commentLikeService.cancelAllCommentLike(post_id);
@@ -92,19 +82,6 @@ public class PostController {
     @GetMapping("/profile/{username}")
     public CommonResponse getUserProfile(String username){
         return responseService.getDataResponse(profileService.getUserProfile(username));
-    }
-
-    @GetMapping("/posts/me")
-    public CommonResponse findCurrentUserPosts(@AuthenticationPrincipal Principal principal) {
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
-
-        log.info("retrieving posts for user {}", principal.getName());
-
-        List<PostResponse> posts = postService.postsByUsername(principal.getName());
-
-        log.info("found {} posts for user {}", posts.size(), principal.getName());
-
-        return responseService.getDataResponse(posts);
     }
 
     @GetMapping("/posts/{username}")
@@ -169,26 +146,20 @@ public class PostController {
     }
 
     @PostMapping("/posts/{postId}/like")
-    public CommonResponse likePost(@AuthenticationPrincipal Principal principal,
-                                   @PathVariable(value = "postId") String post_id){
+    public CommonResponse likePost(@PathVariable(value = "postId") String post_id){
 
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
-
-        String like_id = postLikeService.likePost(post_id, principal.getName());
+        String like_id = postLikeService.likePost(post_id);
 
         return responseService.getDataResponse(like_id);
     }
 
     @DeleteMapping("/posts/{postId}/like/{likeId}")
-    public CommonResponse cancelPostLike(@AuthenticationPrincipal Principal principal,
-                                         @PathVariable(value = "postId") String post_id,
+    public CommonResponse cancelPostLike(@PathVariable(value = "postId") String post_id,
                                          @PathVariable(value = "likeId") String like_id){
-
-        if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
 
         postLikeService.deletePostLike(like_id);
 
-        log.info("user {} delete to like post {}", principal.getName(), post_id);
+        log.info("user delete to like post {}", post_id);
 
         return responseService.getSuccessResponse();
     }
