@@ -13,10 +13,13 @@ import com.sgdevcamp.postservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
@@ -38,9 +41,9 @@ public class PostController {
     private final ProfileService profileService;
     private final ResponseService responseService;
 
-    @PostMapping("/posts")
-    public CommonResponse createPost(@RequestBody PostRequest postRequest,
-                                     @RequestPart List<MultipartFile> multipartFiles,
+    @PostMapping(value = "/posts", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public CommonResponse createPost(PostRequest postRequest,
+                                     @RequestPart("multipartFiles") List<MultipartFile> multipartFiles,
                                      @AuthenticationPrincipal Principal principal) throws IOException {
 
         if(principal == null) throw new CustomException(NOT_ALLOWED_USER);
