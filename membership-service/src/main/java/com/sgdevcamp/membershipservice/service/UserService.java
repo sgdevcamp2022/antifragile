@@ -21,9 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -40,7 +37,7 @@ public class UserService {
     private final JwtUtil jwtUtil;
     private final RedisUtil redisUtil;
     private final EmailService emailService;
-    private final FileService fileService;
+    private final S3Service s3Service;
     private final SaltUtil saltUtil;
     private final RedisTemplate redisTemplate;
     private final UserEventSender userEventSender;
@@ -213,19 +210,14 @@ public class UserService {
         return result;
     }
 
-    public void uploadProfile(User user, MultipartFile file) throws Exception{
-        Path rootLocation= Paths.get("C:/image/");
-        String save_file_name = fileService.fileSave(rootLocation.toString(), file);
+    @Transactional
+    public String uploadProfile(User user, MultipartFile file) throws Exception{
 
-        Profile profile = Profile.builder()
-                .original_file_name(file.getOriginalFilename())
-                .server_file_name(save_file_name)
-                .path(rootLocation.toString().replace(File.separatorChar, '/') +'/' + save_file_name)
-                .size(file.getResource().contentLength())
-                .update_at(LocalDateTime.now())
-                .build();
+        Profile save_profile = s3Service.uploadMediaToS3(file, user.getUsername());
 
-        user.updateProfile(profile);
+        user.updateProfile(save_profile);
+
+        return save_profile.getPath();
     }
 
     @Transactional
