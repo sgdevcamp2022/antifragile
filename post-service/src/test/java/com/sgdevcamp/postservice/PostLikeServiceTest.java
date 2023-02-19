@@ -50,7 +50,7 @@ public class PostLikeServiceTest {
         when(postLikeRepository.save(any())).thenReturn(postLike);
 
         // when
-        String like_id = postLikeService.likePost(post_id, username);
+        String like_id = postLikeService.likePost(post_id);
 
         // then
         assertEquals(like_id, postLike.getId());
