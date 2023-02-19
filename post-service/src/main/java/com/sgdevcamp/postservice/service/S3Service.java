@@ -43,7 +43,7 @@ public class S3Service {
             log.info("File name: " + fileName);
 
             String contentType = FileUtil.findContentType(file.getContentType());
-            log.info("Content Type change to Enum Type " + MediaType.valueOf(contentType));
+            log.info("Content Type change to Enum Type " + contentType);
 
             String folder = FileUtil.findFolder(fileName, username, contentType);
 
