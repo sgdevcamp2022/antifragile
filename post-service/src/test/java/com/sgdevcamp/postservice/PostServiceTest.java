@@ -1,6 +1,7 @@
 package com.sgdevcamp.postservice;
 
 import com.sgdevcamp.postservice.dto.request.PostRequest;
+import com.sgdevcamp.postservice.dto.request.PostUpdateRequest;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.messaging.PostEventSender;
 import com.sgdevcamp.postservice.model.Image;
@@ -54,6 +55,7 @@ public class PostServiceTest {
         postRequest.setUsername(username);
         postRequest.setImages(images);
         postRequest.setContent("좋아요 눌러주세요");
+        postRequest.setHashTags(new ArrayList<>());
 
         post = postRequest.toEntity();
     }
@@ -129,14 +131,17 @@ public class PostServiceTest {
     @DisplayName("게시글 수정")
     public void updatePost() {
         // given
-        when(postRepository.save(postRequest.toEntity())).thenReturn(postRequest.toEntity());
+        PostUpdateRequest postUpdateRequest = new PostUpdateRequest();
+        postUpdateRequest.setHashTags(post.getHashTags());
+
+        when(postRepository.findById(any())).thenReturn(Optional.of(post));
+        when(postRepository.save(any())).thenReturn(post);
 
         // when
-        PostResponse postResponse = postService.createPost(postRequest);
+        Post updatePost = postService.updatePost(any(), postUpdateRequest);
 
         // then
-        assertEquals(postResponse.getUsername(), postRequest.getUsername());
-        assertEquals(postResponse.getContent(), postRequest.getContent());
+        assertThat(updatePost).isNotNull();
     }
 
 }

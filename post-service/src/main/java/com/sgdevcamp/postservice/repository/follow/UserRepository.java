@@ -34,6 +34,10 @@ public interface UserRepository extends Neo4jRepository<User, Long> {
             countQuery = "MATCH (n:User{username : $username})<--(f:User) Return count(f)")
     Page<User> findFollowers(@Param("username") String username, Pageable pageable);
 
+    @Query(value = "MATCH (n:User{userId : $userId})-->(f:User) Return f",
+            countQuery = "MATCH (n:User{userId : $userId})-->(f:User) Return count(f)")
+    Page<User> findFollowings(@Param("userId") String userId, Pageable pageable);
+
     @Query("MATCH (n:User{username : $username})-->(f:User) Return f")
     List<User> findFollowing(@Param("username") String username);
 

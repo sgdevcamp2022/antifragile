@@ -1,6 +1,7 @@
 package com.sgdevcamp.postservice.service;
 
 import com.sgdevcamp.postservice.dto.request.PostRequest;
+import com.sgdevcamp.postservice.dto.request.PostUpdateRequest;
 import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.exception.CustomException;
 import com.sgdevcamp.postservice.messaging.PostEventSender;
@@ -21,6 +22,7 @@ import static com.sgdevcamp.postservice.exception.CustomExceptionStatus.*;
 public class PostService {
 
     private final PostRepository postRepository;
+    private final HashtagService hashtagService;
     private final PostEventSender postEventSender;
 
     public PostResponse createPost(PostRequest postRequest){
@@ -39,6 +41,13 @@ public class PostService {
 
     public boolean isExistPost(String id){
         return postRepository.existsById(id);
+    }
+
+    public boolean isUpdateHashtag(Post post, PostUpdateRequest postUpdateRequest){
+
+        if(!postUpdateRequest.getHashTags().equals(post.getHashTags())) return true;
+
+        return false;
     }
 
     public List<PostResponse> postsByUsername(String username){
@@ -61,6 +70,31 @@ public class PostService {
                 .stream()
                 .map(Post::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public List<PostResponse> postsByUserIdIn(List<String> ids){
+
+        return postRepository.findByUserIdInOrderByCreatedAtDesc(ids)
+                .stream()
+                .map(Post::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    public Post updatePost(String post_id, PostUpdateRequest postUpdateRequest){
+
+        Post post = postRepository.findById(post_id).orElseThrow(() -> {throw new CustomException(NOT_FOUND_POST);});
+
+        if(isUpdateHashtag(post, postUpdateRequest)){
+            hashtagService.deleteHashtags(post_id);
+            hashtagService.createHashtags(postUpdateRequest.getHashTags(), post);
+        }
+
+        post.update(postUpdateRequest);
+        Post save_post = postRepository.save(post);
+
+        log.info("successfully updated post {}", post_id);
+
+        return save_post;
     }
 
     public void deletePost(String post_id, String username){
