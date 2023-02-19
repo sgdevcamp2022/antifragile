@@ -129,9 +129,13 @@ public class UserController {
 
     @PostMapping("/auth/profile")
     public CommonResponse uploadProfileImage(@AuthenticationPrincipal CustomUserDetails customUserDetails,
-                                             @RequestParam("image") MultipartFile multipartFile) throws Exception {
-        userService.uploadProfile(customUserDetails.getAccount(), multipartFile);
-        return responseService.getSuccessResponse();
+                                             @RequestPart("image") MultipartFile multipartFile) throws Exception {
+
+        log.info("get request to upload user profile image");
+
+        String image_url = userService.uploadProfile(customUserDetails.getAccount(), multipartFile);
+
+        return responseService.getDataResponse(image_url);
     }
 
     @PostMapping("/password")

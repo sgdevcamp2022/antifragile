@@ -76,7 +76,10 @@ public enum CustomExceptionStatus {
     SERVER_ERROR(false, 2301, "서버와의 연결에 실패하였습니다."),
 
     //[PATCH] /users/{userIdx}
-    MODIFY_FAIL_USERNAME(false,2310,"유저네임 수정 실패");
+    MODIFY_FAIL_USERNAME(false,2310,"유저네임 수정 실패"),
+
+    // File
+    FILE_CONVERT_FAIL(false, 1300, "변환할 수 없는 파일입니다.");
 
     // 5000
 
