@@ -210,12 +210,15 @@ public class UserService {
         return result;
     }
 
-    @Transactional
     public String uploadProfile(User user, MultipartFile file) throws Exception{
 
         Profile save_profile = s3Service.uploadMediaToS3(file, user.getUsername());
 
+        String old_image = user.getProfile().getPath();
         user.updateProfile(save_profile);
+        userRepository.save(user);
+
+        userEventSender.sendUserUpdated(user, old_image);
 
         return save_profile.getPath();
     }
