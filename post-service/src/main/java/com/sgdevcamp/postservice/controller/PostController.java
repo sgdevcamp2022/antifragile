@@ -146,9 +146,10 @@ public class PostController {
     }
 
     @PostMapping("/posts/{postId}/like")
-    public CommonResponse likePost(@PathVariable(value = "postId") String post_id){
+    public CommonResponse likePost(@PathVariable(value = "postId") String post_id,
+                                   @RequestBody String username){
 
-        String like_id = postLikeService.likePost(post_id);
+        String like_id = postLikeService.likePost(post_id, username);
 
         return responseService.getDataResponse(like_id);
     }
