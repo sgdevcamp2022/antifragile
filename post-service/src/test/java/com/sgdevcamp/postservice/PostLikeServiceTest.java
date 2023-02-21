@@ -45,12 +45,12 @@ public class PostLikeServiceTest {
 
     @Test
     @DisplayName("게시글 좋아요")
-    public void createPost() {
+    public void createPostLike() {
         // given
         when(postLikeRepository.save(any())).thenReturn(postLike);
 
         // when
-        String like_id = postLikeService.likePost(post_id);
+        String like_id = postLikeService.likePost(post_id, username);
 
         // then
         assertEquals(like_id, postLike.getId());
