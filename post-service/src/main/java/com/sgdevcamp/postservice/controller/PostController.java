@@ -112,7 +112,7 @@ public class PostController {
 
         if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
 
-        return responseService.getDataResponse(commentService.createComment(commentCreateRequest));
+        return responseService.getDataResponse(commentService.createComment(commentCreateRequest, post_id));
     }
 
     @GetMapping("/posts/{postId}/comments")
@@ -135,7 +135,7 @@ public class PostController {
 
     @DeleteMapping("/posts/{postId}/comments/{commentId}")
     public CommonResponse deleteComment(@PathVariable(value = "postId") String post_id,
-                                      @PathVariable(value = "commentId") String comment_id) {
+                                        @PathVariable(value = "commentId") String comment_id) {
 
         if(!postService.isExistPost(post_id)) throw new CustomException(NOT_FOUND_POST);
         commentService.deleteComment(comment_id);
@@ -146,9 +146,10 @@ public class PostController {
     }
 
     @PostMapping("/posts/{postId}/like")
-    public CommonResponse likePost(@PathVariable(value = "postId") String post_id){
+    public CommonResponse likePost(@PathVariable(value = "postId") String post_id,
+                                   @RequestBody String username){
 
-        String like_id = postLikeService.likePost(post_id);
+        String like_id = postLikeService.likePost(post_id, username);
 
         return responseService.getDataResponse(like_id);
     }

@@ -20,6 +20,7 @@ public class PostLikeService {
 
         PostLike postLike = PostLike.builder()
                 .postId(post_id)
+                .username(username)
                 .build();
 
         PostLike save_postLike = postLikeRepository.save(postLike);

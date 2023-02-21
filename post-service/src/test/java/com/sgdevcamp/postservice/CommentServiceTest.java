@@ -52,6 +52,7 @@ public class CommentServiceTest {
         commentUpdateRequest.setContent("댓글 달고 갑니다.");
 
         comment = Comment.builder()
+                .id("1")
                 .username("user1")
                 .content("댓글 달고 갈게요~")
                 .postId("1")
@@ -65,7 +66,7 @@ public class CommentServiceTest {
         when(commentRepository.save(any())).thenReturn(comment);
 
         // when
-        CommentResponse commentResponse = commentService.createComment(commentCreateRequest);
+        CommentResponse commentResponse = commentService.createComment(commentCreateRequest, post_id);
 
         // then
         assertEquals(commentResponse.getUsername(), commentCreateRequest.getUsername());

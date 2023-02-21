@@ -22,9 +22,9 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
 
-    public CommentResponse createComment(CommentCreateRequest commentCreateRequest){
+    public CommentResponse createComment(CommentCreateRequest commentCreateRequest, String post_id){
 
-        Comment comment = commentCreateRequest.toEntity();
+        Comment comment = commentCreateRequest.toEntity(post_id);
 
         Comment saved_comment = commentRepository.save(comment);
 
