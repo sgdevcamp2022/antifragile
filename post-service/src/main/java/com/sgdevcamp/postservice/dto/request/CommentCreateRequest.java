@@ -9,10 +9,11 @@ public class CommentCreateRequest {
 
     private String content;
 
-    public Comment toEntity(){
+    public Comment toEntity(String post_id){
         return Comment.builder()
                 .username(username)
                 .content(content)
+                .postId(post_id)
                 .build();
     }
 }
