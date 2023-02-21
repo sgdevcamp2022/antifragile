@@ -16,7 +16,7 @@ public class PostLikeService {
 
     private final PostLikeRepository postLikeRepository;
 
-    public String likePost(String post_id){
+    public String likePost(String post_id, String username){
 
         PostLike postLike = PostLike.builder()
                 .postId(post_id)
@@ -25,7 +25,7 @@ public class PostLikeService {
 
         PostLike save_postLike = postLikeRepository.save(postLike);
 
-        log.info("user likes post {}", post_id);
+        log.info("user {} likes post {}", username, post_id);
 
         return save_postLike.getId();
     }
