@@ -3,12 +3,16 @@
 
 ---
 
+</br>
+
 ## 프로젝트 설명
 
 ### INSTAGRAM CLONE + OPEN CHAT
 
 - Instagram WEB 을 클론코딩합니다.
 - 가장 보편화된 SNS인 Instagram과 Kakaotalk의 Open Chat을 결합합니다.
+
+</br>
 
 ## 목표
 
@@ -31,9 +35,12 @@
         - React 이용 SPA 구축 경험
         - 팀 협업, FE 협업
 
-## 아키텍쳐
+</br>
 
-![Group_37694](https://user-images.githubusercontent.com/46569105/217827880-545ad9f1-6fa3-4a1f-ac4f-cb5a129548d2.png)
+## 아키텍쳐
+![image](https://user-images.githubusercontent.com/46569105/221363033-3a6cebd5-a155-44be-9bbc-c85efb461a50.png)
+
+</br>
 
 ## 기술 스택
 
@@ -41,17 +48,18 @@
     - React.js
     - HTML
     - CSS
-    - Firebase
-    - Figma
     
 - Back-end 스택
-    - Spring MVC
+    - Java 11
+    - Spring Boot 2.6.14
+    - MySQL
     - Redis
-    - Cassandra
     - Neo4j
     - MongoDB
-    - Django
     - kafka
+    - S3
+    
+</br>
 
 ## 모듈 별 기능
 
@@ -79,6 +87,8 @@
 - 설정
     - 프로필 편집
     - 비밀번호 변경
+    
+</br>
 
 ## 프로젝트 진행과정
 
