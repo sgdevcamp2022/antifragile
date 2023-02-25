@@ -94,3 +94,9 @@
 
 ## 당면한 문제, 추가하고 싶은 기능
 
+</br>
+
+## Appendix
+1. API 명세서  
+https://docs.google.com/spreadsheets/d/1luIlRJAaoTZopquT7E2zawNpb__TuPizC6oi41m2NEM/edit?usp=sharing
+
