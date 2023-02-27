@@ -96,6 +96,99 @@
 
 </br>
 
+## Directory  
+```
+post-service
+└─src
+    ├─main
+    │  ├─java/com/sgdevcamp/postservice     
+    │  |    ├─config
+    │  |    ├─controller
+    │  │    │  ├─feed
+    │  │    │  └─follow
+    │  │    ├─dto
+    │  │    │  ├─feed
+    │  │    │  ├─follow
+    │  │    │  │  ├─request
+    │  │    │  │  └─response
+    │  │    │  ├─request
+    │  │    │  └─response
+    │  │    ├─exception
+    │  │    ├─messaging
+    │  │    ├─model
+    │  │    │  └─follow
+    │  │    ├─payload
+    │  │    ├─repository
+    │  │    │  └─follow
+    │  │    └─service
+    │  │       ├─feed
+    │  │       └─follow
+    │  └─resources
+    │      ├─static
+    │      └─templates
+    └─test
+        └─java/com/sgdevcamp/postservice
+            └─controller
+                ├─feed
+                └─follow       
+                            
+```
+
+```
+membership-service
+└─src
+    ├─main
+    │  ├─java/com/sgdevcamp/membershipservice
+    │  │    ├─conifg
+    │  │    ├─controller
+    │  │    ├─dto
+    │  │    │  ├─request
+    │  │    │  └─response
+    │  │    ├─exception
+    │  │    ├─messaging
+    │  │    ├─model
+    │  │    ├─payload
+    │  │    ├─repository
+    │  │    └─service
+    │  └─resources
+    │      ├─static
+    │      └─templates
+    └─test
+        └─java/com/sgdevcamp/membershipservice
+            └─controller
+             
+```
+
+
+```
+gateway
+└─src
+    ├─main
+    │  ├─java/com/sgdevcamp/gateway
+    │  │  └─config
+    |  |      └─filter            
+    │  └─resources
+    └─test
+        └─java/com/sgdevcamp/gateway
+     
+```
+
+```
+discovery
+└─src
+    ├─main
+    │  ├─java/com/sgdevcamp/discovery
+    │  └─resources
+    │      ├─static
+    │      └─templates
+    └─test
+        └─java/com/sgdevcamp/discovery
+             
+       
+```
+
+</br>
+
 ## Appendix
 1. API 명세서  
 https://docs.google.com/spreadsheets/d/1luIlRJAaoTZopquT7E2zawNpb__TuPizC6oi41m2NEM/edit?usp=sharing
