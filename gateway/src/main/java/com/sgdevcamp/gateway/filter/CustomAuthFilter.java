@@ -1,12 +1,9 @@
 package com.sgdevcamp.gateway.filter;
 
 import java.nio.charset.StandardCharsets;
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
-import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -22,6 +19,7 @@ import reactor.core.publisher.Mono;
 @Slf4j
 @Component
 public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFilter.Config>{
+
     @Value("${spring.security.jwt.secret}")
     private String SECRET_KEY;
 
@@ -38,34 +36,12 @@ public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFil
         return (exchange, chain) -> {
             ServerHttpRequest request = exchange.getRequest();
 
-            HttpHeaders headers = request.getHeaders();
-
-            List<String> cookieHeaders = headers.get(HttpHeaders.COOKIE);
-            String accessToken = new String();
-            String refreshToken = new String();
-            if (cookieHeaders != null) {
-                for (String cookieHeader : cookieHeaders) {
-                    String[] cookies = cookieHeader.split(";");
-                    for (String cookie : cookies) {
-                        String[] parts = cookie.trim().split("=");
-                        if (parts.length == 2) {
-                            String name = parts[0];
-                            String value = parts[1];
-                            if(name.equals("accessToken")){
-                                accessToken = value;
-                            }else if(name.equals("refreshToken")){
-                                refreshToken = value;
-                            }
-                        }
-                    }
-                }
-            }
-
-            if (accessToken.isEmpty()){
+            if (!request.getHeaders().containsKey(HttpHeaders.AUTHORIZATION)){
                 return onError(exchange, "no authorization header", HttpStatus.UNAUTHORIZED);
             }
 
-            String jwt = accessToken;
+            String authorizationHeader = request.getHeaders().get(HttpHeaders.AUTHORIZATION).get(0);
+            String jwt = authorizationHeader.replace("Bearer", "");
 
             if (!isJwtValid(jwt)) {
                 log.info("fail");
@@ -75,6 +51,7 @@ public class CustomAuthFilter extends AbstractGatewayFilterFactory<CustomAuthFil
             return chain.filter(exchange);
         };
     }
+
     private boolean isJwtValid(String jwt) {
         boolean returnValue = true;
         String subject = null;
