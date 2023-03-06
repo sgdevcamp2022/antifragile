@@ -37,6 +37,7 @@ public class UserController {
     private final ResponseService responseService;
     private final UserService userService;
     private final CookieUtil cookieUtil;
+    private final static String REFRESH_TOKEN = "refreshToken";
 
     @PostMapping("/signup")
     public Response<UserDto> signUp(@RequestBody @Valid UserDto userDto, Errors errors){
@@ -58,6 +59,12 @@ public class UserController {
         userService.logout(customUserDetails.getUsername(), accessToken, refreshToken);
 
         return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/refresh")
+    public CommonResponse refreshToken(HttpServletRequest request){
+        String refresh_token = cookieUtil.getCookie(request, REFRESH_TOKEN).getValue();
+        return responseService.getDataResponse(userService.checkRefreshToken(refresh_token));
     }
 
     @PostMapping("/send-mail")

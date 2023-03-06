@@ -123,6 +123,29 @@ public class UserService {
         log.info("{} 로그아웃 되었습니다.", username);
     }
 
+    public LoginResponse checkRefreshToken(String refresh_token){
+        String username = redisUtil.getData(refresh_token);
+
+        if(username == null){
+            throw new CustomException(INVALID_JWT);
+        }
+
+        User account = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ACCOUNT_NOT_FOUND));
+
+        User user = User.builder()
+                .username(username)
+                .email(account.getEmail())
+                .role(account.getRole())
+                .build();
+
+        LoginResponse res = LoginResponse.builder()
+                .accessToken(jwtUtil.generateToken(user))
+                .refreshToken(refresh_token)
+                .build();
+
+        return res;
+    }
+
     public User findByUsername(String username) {
         User member = userRepository.findByUsername(username)
                 .orElseThrow(() -> {throw new CustomException(ACCOUNT_NOT_FOUND);});
