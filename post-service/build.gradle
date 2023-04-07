@@ -36,7 +36,17 @@ dependencies {
 	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
 	implementation 'junit:junit'
 	implementation 'io.awspring.cloud:spring-cloud-starter-aws:2.4.4'
+
+	// gRPC
+	implementation 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE'
+
+	// protobuf
+	implementation 'com.google.protobuf:protobuf-java:3.22.2'
+
+	implementation project(':proto')
+
 	compileOnly 'org.projectlombok:lombok'
+	compileOnly 'org.apache.tomcat:annotations-api:6.0.53' // necessary for Java 9+
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
