@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "net.devh.boot.grpc.examples.lib";
+option java_outer_classname = "MembershipProto";
+
+message Account {
+  string username = 1;
+  string profileImageUrl = 2;
+}
+
+message Post {
+  int64 id = 1;
+}
+
+service MembershipService {
+  rpc getAccount(Post) returns (Account){}
+}
