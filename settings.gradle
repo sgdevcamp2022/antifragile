@@ -1,0 +1,4 @@
+rootProject.name = 'antifragile'
+
+include 'proto', 'post-service', 'discovery', 'gateway', 'membership-service'
+
