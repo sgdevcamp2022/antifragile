@@ -2,7 +2,9 @@ package com.sgdevcamp.membershipservice;
 
 import com.sgdevcamp.membershipservice.dto.request.ProfileRequest;
 import com.sgdevcamp.membershipservice.dto.request.UserDto;
+import com.sgdevcamp.membershipservice.dto.response.LoginResponse;
 import com.sgdevcamp.membershipservice.dto.response.MailResponse;
+import com.sgdevcamp.membershipservice.exception.CustomException;
 import com.sgdevcamp.membershipservice.messaging.UserEventSender;
 import com.sgdevcamp.membershipservice.model.Salt;
 import com.sgdevcamp.membershipservice.model.User;
@@ -22,8 +24,9 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -122,6 +125,56 @@ public class UserServiceTest {
 
         // then
         assertThat(result).isEqualTo(users);
+    }
+
+    @Test
+    @DisplayName("Silent Refresh")
+    public void checkRefreshToken(){
+        // given
+        String access_token = "access_token";
+        String refresh_token = "refresh_token";
+
+        // when
+        when(redisUtil.getData(anyString())).thenReturn(username);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
+        when(jwtUtil.generateToken(any())).thenReturn(access_token);
+
+        LoginResponse loginResponse = userService.checkRefreshToken(refresh_token);
+
+        // then
+        assertAll("loginResponse",
+                () -> assertEquals(loginResponse.getAccessToken(), access_token),
+                () -> assertEquals(loginResponse.getRefreshToken(), refresh_token)
+        );
+    }
+
+    @Test
+    @DisplayName("Silent Refresh - INVALID_JWT 예외 발생")
+    public void checkRefreshTokenThrowException1(){
+        // given
+        String refresh_token = "refresh_token";
+
+        // when
+        when(redisUtil.getData(anyString())).thenReturn(null);
+
+        // then
+        assertThrows(CustomException.class,
+                () -> {userService.checkRefreshToken(refresh_token);});
+    }
+
+    @Test
+    @DisplayName("Silent Refresh - ACCOUNT_NOT_FOUND 예외 발생")
+    public void checkRefreshTokenThrowException2(){
+        // given
+        String refresh_token = "refresh_token";
+
+        // when
+        when(redisUtil.getData(anyString())).thenReturn(username);
+        when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
+
+        // then
+        assertThrows(CustomException.class,
+                () -> {userService.checkRefreshToken(refresh_token);});
     }
 
     @Test

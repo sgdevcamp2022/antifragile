@@ -8,11 +8,10 @@ import com.sgdevcamp.membershipservice.exception.CustomExceptionStatus;
 import com.sgdevcamp.membershipservice.exception.ValidationExceptionProvider;
 import com.sgdevcamp.membershipservice.model.User;
 import com.sgdevcamp.membershipservice.model.UserRole;
-import com.sgdevcamp.membershipservice.service.CookieUtil;
-import com.sgdevcamp.membershipservice.service.ResponseService;
-import com.sgdevcamp.membershipservice.service.UserService;
+import com.sgdevcamp.membershipservice.service.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,9 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.List;
@@ -37,6 +38,9 @@ public class UserController {
     private final ResponseService responseService;
     private final UserService userService;
     private final CookieUtil cookieUtil;
+    private final JwtUtil jwtUtil;
+    private final RedisUtil redisUtil;
+    private final static String REFRESH_TOKEN = "refreshToken";
 
     @PostMapping("/signup")
     public Response<UserDto> signUp(@RequestBody @Valid UserDto userDto, Errors errors){
@@ -45,9 +49,24 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public Response<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest, Errors errors){
+    public Response<LoginResponse> login(@RequestBody @Valid LoginRequest loginRequest,
+                                         HttpServletResponse response, Errors errors){
+
         if(errors.hasErrors()) ValidationExceptionProvider.throwValidError(errors);
-        return responseService.getDataResponse(userService.loginUser(loginRequest));
+
+        final User user = userService.loginUser(loginRequest);
+        final String access_token = jwtUtil.generateToken(user);
+        final String refreshJwt = jwtUtil.generateRefreshToken(user);
+
+        Cookie refresh_token = cookieUtil.createCookie(JwtUtil.REFRESH_TOKEN_NAME, refreshJwt);
+        redisUtil.setDataExpire(refreshJwt, user.getUsername(), JwtUtil.REFRESH_TOKEN_VALIDATION_SECOND);
+        response.addCookie(refresh_token);
+
+        return responseService.getDataResponse(LoginResponse
+                .builder()
+                .id(user.getId())
+                .accessToken(access_token)
+                .build());
     }
 
     @PostMapping("/logout")
@@ -58,6 +77,12 @@ public class UserController {
         userService.logout(customUserDetails.getUsername(), accessToken, refreshToken);
 
         return responseService.getSuccessResponse();
+    }
+
+    @PostMapping("/refresh")
+    public CommonResponse refreshToken(HttpServletRequest request){
+        String refresh_token = cookieUtil.getCookie(request, REFRESH_TOKEN).getValue();
+        return responseService.getDataResponse(userService.checkRefreshToken(refresh_token));
     }
 
     @PostMapping("/send-mail")

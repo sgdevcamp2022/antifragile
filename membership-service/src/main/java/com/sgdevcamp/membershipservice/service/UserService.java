@@ -75,9 +75,10 @@ public class UserService {
         return signupForm;
     }
 
-    public LoginResponse loginUser(LoginRequest request) {
-        User account = userRepository.findByUsernameOrEmail(request.getUsername(), request.getEmail())
-                .orElseThrow(() -> new CustomException(CustomExceptionStatus.FAILED_TO_LOGIN));
+    public User loginUser(LoginRequest request) {
+
+        User account = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.ACCOUNT_NOT_FOUND));
 
         String salt = account.getSalt().getSalt();
         String password = saltUtil.encodePassword(salt, request.getPassword());
@@ -86,25 +87,7 @@ public class UserService {
             throw new CustomException(CustomExceptionStatus.FAILED_TO_LOGIN);
         }
 
-        User user = User.builder()
-                .username(request.getUsername())
-                .email(request.getEmail())
-                .role(account.getRole())
-                .build();
-
-        String refreshToken = jwtUtil.generateRefreshToken(user);
-        if(request.getEmail() == null) redisUtil.setDataExpire(refreshToken, request.getUsername(), JwtUtil.REFRESH_TOKEN_VALIDATION_SECOND);
-        else redisUtil.setDataExpire(refreshToken, request.getEmail(), JwtUtil.REFRESH_TOKEN_VALIDATION_SECOND);
-
-        LoginResponse res = LoginResponse.builder()
-                .id(account.getId())
-                .username(account.getName())
-                .email(account.getEmail())
-                .accessToken(jwtUtil.generateToken(user))
-                .refreshToken(refreshToken)
-                .build();
-
-        return res;
+        return account;
     }
 
     public void logout(String username, String accessToken, String refreshToken) {
@@ -121,6 +104,28 @@ public class UserService {
                 .set(accessToken, "logout", expiration, TimeUnit.MILLISECONDS);
 
         log.info("{} 로그아웃 되었습니다.", username);
+    }
+
+    public LoginResponse checkRefreshToken(String refresh_token){
+        String username = redisUtil.getData(refresh_token);
+
+        if(username == null){
+            throw new CustomException(INVALID_JWT);
+        }
+
+        User account = userRepository.findByUsername(username).orElseThrow(() -> new CustomException(ACCOUNT_NOT_FOUND));
+
+        User user = User.builder()
+                .username(username)
+                .email(account.getEmail())
+                .role(account.getRole())
+                .build();
+
+        LoginResponse res = LoginResponse.builder()
+                .accessToken(jwtUtil.generateToken(user))
+                .build();
+
+        return res;
     }
 
     public User findByUsername(String username) {
