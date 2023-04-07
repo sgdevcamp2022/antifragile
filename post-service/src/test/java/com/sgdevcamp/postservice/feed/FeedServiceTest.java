@@ -1,12 +1,16 @@
 package com.sgdevcamp.postservice.feed;
 
+import com.sgdevcamp.postservice.client.MembershipClient;
+import com.sgdevcamp.postservice.dto.feed.SlicedResult;
 import com.sgdevcamp.postservice.dto.follow.response.PagedResult;
+import com.sgdevcamp.postservice.dto.response.PostResponse;
 import com.sgdevcamp.postservice.model.Post;
 import com.sgdevcamp.postservice.model.follow.User;
 import com.sgdevcamp.postservice.repository.PostRepository;
 import com.sgdevcamp.postservice.service.feed.FeedService;
 import com.sgdevcamp.postservice.service.follow.UserService;
-import org.junit.jupiter.api.BeforeEach;
+import net.devh.boot.grpc.examples.lib.Account;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,6 +24,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -34,9 +39,23 @@ public class FeedServiceTest {
     @Mock
     private UserService userService;
 
-    @BeforeEach
-    public void beforeEach(){
+    @Mock
+    private MembershipClient membershipClient;
 
+    private static String userId;
+
+    private static String content;
+
+    private static String profileImageUrl;
+
+    private static String username;
+
+    @BeforeAll
+    public static void beforeEach(){
+        userId = "1";
+        content = "hi";
+        profileImageUrl = "user.jpg";
+        username = "user";
     }
 
     @Test
@@ -47,24 +66,33 @@ public class FeedServiceTest {
         String user_id = "1";
 
         PagedResult<User> followings = new PagedResult<>();
-        List<User> content = new ArrayList<>();
-        content.add(User.builder().userId("1").build());
-        followings.setContent(content);
+        List<User> contents = new ArrayList<>();
+        contents.add(User.builder().userId("1").build());
+        followings.setContent(contents);
         followings.setPage(20);
 
         List<Post> posts = new ArrayList<>();
-
         Post post = Post.builder()
-                .content("hi")
+                .userId(userId)
+                .content(content)
                 .images(new ArrayList<>())
                 .build();
+        posts.add(post);
 
         // when
         when(postRepository.findById(any())).thenReturn(Optional.of(post));
         when(userService.findPaginatedFollowings(user_id, 0, page)).thenReturn(followings);
         when(postRepository.findByCreatedAtGreaterThanAndUserIdInOrderByCreatedAtDesc(any(), any())).thenReturn(posts);
+        when(membershipClient.findProfile(anyLong())).thenReturn(Account.newBuilder()
+                .setProfileImageUrl(profileImageUrl)
+                .setUsername(username)
+                .build());
 
         // then
-        assertThat(feedService.getUserFeed(user_id, "1", Optional.of("2"))).isNotNull();
+        SlicedResult<PostResponse> result = feedService.getUserFeed(user_id, "1", Optional.of("2"));
+        assertThat(result.getContent().get(0).getUserProfilePic()).isEqualTo(profileImageUrl);
+        assertThat(result.getContent().get(0).getUsername()).isEqualTo(username);
+        assertThat(result.getContent().get(0).getContent()).isEqualTo(content);
+        assertThat(result.getContent().get(0).getUserId()).isEqualTo(userId);
     }
 }
