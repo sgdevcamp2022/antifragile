@@ -46,12 +46,14 @@ dependencies {
 	implementation 'io.springfox:springfox-swagger2:3.0.0'
 	implementation 'io.springfox:springfox-boot-starter:3.0.0'
 
+	// common
+	implementation project(':proto')
+
 	// gRPC
-	implementation "io.grpc:grpc-netty:${grpcVersion}"
-	implementation "io.grpc:grpc-protobuf:${grpcVersion}"
-	implementation "io.grpc:grpc-stub:${grpcVersion}"
-	runtimeOnly 'com.google.protobuf:protobuf-java-util:3.22.2'
-	implementation 'net.devh:grpc-spring-boot-starter:2.9.0.RELEASE'
+	implementation 'net.devh:grpc-spring-boot-starter:2.13.1.RELEASE'
+
+	// protobuf
+	implementation 'com.google.protobuf:protobuf-java:3.22.2'
 
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'com.h2database:h2'
