@@ -49,6 +49,12 @@ subprojects {
     }
 }
 
+project(':membership-service'){
+    dependencies {
+        implementation project(':proto')
+    }
+}
+
 tasks.named('test') {
     useJUnitPlatform()
 }

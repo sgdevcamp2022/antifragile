@@ -13,6 +13,8 @@ import java.util.List;
 public class PostResponse {
     private String id;
 
+    private String userId;
+
     private String username;
 
     private String userProfilePic;
